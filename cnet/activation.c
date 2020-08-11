@@ -29,7 +29,7 @@ void relu_dx(
     int size
 ){
     for(int i = 0; i < size; i++) {
-        dst[i] = src[i] > 0 ? 1 : 0;
+        dst[i] = src[i] >= 0 ? 1 : 0;
     }
 }
 

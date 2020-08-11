@@ -16,25 +16,30 @@ struct clayer;
 
 
 typedef struct cnet {
+    /* input/output dimensions */
     int in_size, out_size;
+    /* layer helpful indices */
     int n_layers, last_layer;
-
+    /* layers */
     struct clayer **layers;
 } cnet;
 
 
 typedef struct clayer {
+    /* input/output dimensions */
     int in_size, out_size;
+    /* activation type */
     enum cnet_act act_type; 
-
-    double bias;
+    /* trainable parameters */
     double **weights;
-
-    double *output;
-    double *delta;
-
-    // TODO: these arrays should only be allocated in training mode
+    double *bias;
+    /* activation output - A = act(Z) */
+    double *A;
+    /* sum of inputs * weights - Z = sum(i*w) + bias */
+    double *Z;
+    /* cost derivative over the output */
     double *dC_dA;
+    /* output derivative over Z */
     double *dA_dZ;
 } clayer;
 
@@ -91,11 +96,11 @@ void nn_add(
 
 
 /**
- * Network Forward Pass. 
+ * Network Prediction. 
  *
  * @param const cnet *nn: Network
- * @param const double *X: Input
- * @return const double *: Pointer to results
+ * @param const double *X: Input (sized nn->in_size)
+ * @return const double *: Pointer to results (sized nn->out_size)
  */
 const double *nn_predict(
     cnet const *nn,

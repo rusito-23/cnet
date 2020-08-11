@@ -18,8 +18,8 @@ int input_size = 6;
 int output_size = 10;
 int hidden_size = 9;
 int n_layers = 4;
-int n_samples = 1000;
-int epochs = 10000;
+int n_samples = 100;
+int epochs = 1000;
 double lr = 0.001;
 
 int main() {

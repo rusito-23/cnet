@@ -29,7 +29,7 @@ void mse_dx(
     int size
 ){
     for(int i = 0; i < size; i++) {
-        dst[i] = 2 * (pred[i] - real[i]);
+        dst[i] = (pred[i] - real[i]);
     }
 }
 

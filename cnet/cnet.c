@@ -166,14 +166,14 @@ void nn_train(
             for (int i = 0; i < nn->out_size; i++) {
                 loss += lossarr[i];
             }
-            epoch_loss = loss / nn->out_size;
-
+            epoch_loss += loss / nn->out_size;
 
             // backpropagation
 
             for(int l = nn->n_layers; l-->0;) {
+
                 struct clayer* layer = nn->layers[l];
-                struct clayer* next = l < nn->n_layers ? nn->layers[l + 1] : NULL;
+                struct clayer* next = l < (nn->n_layers - 1) ? nn->layers[l + 1] : NULL;
                 struct clayer* previous = l > 0 ? nn->layers[l - 1] : NULL;
 
                 // activation derivative over the layer's delta

@@ -14,13 +14,13 @@
 
 
 // set network properties
-int input_size = 2;
-int output_size = 1;
-int hidden_size = 3;
-int n_layers = 3;
-int n_samples = 500;
+int input_size = 6;
+int output_size = 10;
+int hidden_size = 9;
+int n_layers = 4;
+int n_samples = 1000;
 int epochs = 10000;
-double lr = 0.1;
+double lr = 0.001;
 
 int main() {
     // set random seed
@@ -35,7 +35,8 @@ int main() {
     );
         
     /// add layers
-    nn_add(nn, input_size, hidden_size, act_sigmoid);
+    nn_add(nn, input_size,  hidden_size, act_sigmoid);
+    nn_add(nn, hidden_size, hidden_size, act_sigmoid);
     nn_add(nn, hidden_size, hidden_size, act_sigmoid);
     nn_add(nn, hidden_size, output_size, act_sigmoid);
 

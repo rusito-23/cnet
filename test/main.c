@@ -7,7 +7,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "../cnet/cnet.h"
+#include "cnet.h"
 
 
 #define print(x) printf("%s\n", x); fflush(NULL);

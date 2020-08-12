@@ -1,66 +1,76 @@
 
-# OPTS 
+# ----------------------- #
+#          OPTS	 
+# ----------------------- #
+
 
 CC := gcc
 FLAGS := -Wall -Werror -Wextra -pedantic
 AR := ar
 RM := rm -rf
 
-# SOURCE
 
-CNETDIR := cnet
-SOURCES := $(wildcard $(CNETDIR)/*.c)
+# ----------------------- #
+# 	BIN PATHS
+# ----------------------- #
 
-# BIN PATHS
 
 BDIR := bin
 ODIR := $(BDIR)/obj
 LDIR := $(BDIR)/lib
 XDIR := $(BDIR)/exec
-LIBNAME := cnet
-LIB := $(LDIR)/lib$(LIBNAME).a
 
-OBJECTS := $(SOURCES:$(CNETDIR)/%.c=$(ODIR)/%.o)
 
-# RANDOM SOURCE
+# ----------------------- #
+# 	CNET LIB
+# ----------------------- #
 
-RDNDIR := rdn
-RDN_SRC := rdn/main.c
-RDN_EXEC := rdn
 
-# LIB COMPILE 
+CNET := cnet
+CNET_SDIR := $(CNET)/src
+CNET_IDIR := $(CNET)/include
+CNET_LIB := $(LDIR)/lib$(CNET).a
+CNET_SRC := $(wildcard $(CNET_SDIR)/*.c)
+CNET_OBJ := $(CNET_SRC:$(CNET_SDIR)/%.c=$(ODIR)/%.o)
 
-$(ODIR)/%.o: $(CNETDIR)/%.c
+$(ODIR)/%.o: $(CNET_SDIR)/%.c
 	@mkdir -p $(ODIR)
-	$(CC) $(FLAGS) -c $? -o $@
+	$(CC) $(FLAGS) -I$(CNET_IDIR) -c $? -o $@
 
-$(LIB): $(OBJECTS)
+$(CNET_LIB): $(CNET_OBJ)
 	@mkdir -p $(LDIR)
 	$(AR) rcs $@ $^
 
-.PHONY : all
-all: $(LIB)
+$(CNET): $(CNET_LIB) 
 
-# RDN
 
-$(XDIR)/$(RDN_EXEC): $(LIB) $(RDNDIR)/main.c
+# ----------------------- #
+# 	  TESTS
+# ----------------------- #
+
+
+TEST := test
+TEST_SRC := $(TEST)/*.c
+
+$(XDIR)/$(TEST): $(CNET_LIB) $(TEST_SRC)
 	@mkdir -p $(XDIR)
-	$(CC) $(FLAGS) -o $@ -l${LIBNAME} -L${LDIR} ${RDN_SRC}
+	$(CC) $(FLAGS) -o $@ -I${CNET_IDIR} -l${CNET} -L${LDIR} ${TEST_SRC}
 
-rdn: $(XDIR)/$(RDN_EXEC)
+test: $(XDIR)/$(TEST)
 
-# CLEANS
+
+# ----------------------- #
+#	  CLEANS
+# ----------------------- #
+
+clean_obj:
+	$(RM) $(ODIR)
+
+clean_lib:
+	$(RM) $(LDIR)
 
 clean_exec:
 	$(RM) $(XDIR)
 
-clean_bin:
+clean: clean_obj clean_lib clean_exec
 	$(RM) $(BDIR)
-
-clean_objects:
-	$(RM) $(ODIR)/*.o
-
-clean_lib:
-	$(RM) $(LDIR)/*.a
-
-clean: clean_objects clean_lib clean_bin

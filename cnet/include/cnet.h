@@ -111,6 +111,9 @@ const double *nn_predict(
 /**
  * Train the network.
  *
+ * Performs backward passes through the net using SGD (single training sample)
+ * It shuffles both the X and Y in every epoch to achieve better results.
+ *
  * @param const cnet *nn: Network
  * @param double const** X: Inputs (size data_len x nn->in_size)
  * @param double const** Y: Expected output (size data_len x nn->out_size)

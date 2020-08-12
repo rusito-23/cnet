@@ -8,8 +8,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "cnet.h"
+#include "helpers.h"
 
-#define sfree(x) free(x); x = NULL
 
 /**
  * Create Network. */
@@ -233,44 +233,39 @@ void nn_train(
     cnet const *nn,
     double **X,
     double **Y,
-    int data_len,
+    int train_size,
     enum cnet_loss loss_type,
     double learning_rate,
     int epochs
 ){
 
-    // init temporary helpers
-    double *lossarr = malloc(sizeof(double) * nn->out_size);
+    // init temporary helper arrays
+    double *loss_arr = malloc(sizeof(double) * nn->out_size);
+    int *idx_arr = cnet_idx(train_size);
 
     for(int epoch = 0; epoch < epochs; epoch++) {
-        double epoch_loss = 0;
+        double loss = 0;
 
-        // TODO: shuffle the training set
+        // shuffle the training set
+        cnet_shuffle(idx_arr, train_size);
 
         // for each sample in the dataset (SGD - batch size 1)
-        for(int sample = 0; sample < data_len; sample++) {
+        for(int s = 0; s < train_size; s++) {
+            int sample = idx_arr[s];
 
             // pass the sample through the net
-
             double const *predicted = nn_predict(nn, X[sample]);
 
             // compute the loss
-
-            double loss = 0;
             cnet_get_loss(loss_type)(
                 predicted, 
                 Y[sample],
-                lossarr,
+                loss_arr,
                 nn->out_size
             );
-
-            for (int i = 0; i < nn->out_size; i++) {
-                loss += lossarr[i];
-            }
-            epoch_loss += loss / nn->out_size;
+            loss += cnet_mean(loss_arr, nn->out_size);
 
             // backprop step
-
             nn_backward(
                 nn,
                 X[sample],
@@ -281,7 +276,13 @@ void nn_train(
         }
 
         // log loss
-        printf("[EPOCH %d/%d] - Loss: %lf \n", epoch, epochs, epoch_loss / data_len);
+        printf(
+            "[EPOCH %d/%d] - Loss: %lf \n",
+            epoch,
+            epochs,
+            loss / train_size
+        );
     }
-    free(lossarr);
+    free(loss_arr);
+    free(idx_arr);
 }

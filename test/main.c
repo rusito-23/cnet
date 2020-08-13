@@ -65,6 +65,7 @@ int main() {
         Y,
         n_samples,
         loss_mse,
+        metric_accuracy,
         lr,
         epochs
     );

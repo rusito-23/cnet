@@ -23,7 +23,7 @@ enum cnet_loss {
  * @param const double *pred: Predictions array
  * @param const double *real: Expected array
  * @param double *dst: Destination array
- * @param int size: Source/Destination size.
+ * @param int size: Predictions/Expected/Destination size.
  */
 typedef void (*cnet_loss_fun)(
     double const *pred,

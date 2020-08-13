@@ -235,6 +235,7 @@ void nn_train(
     double **Y,
     int train_size,
     enum cnet_loss loss_type,
+    enum cnet_metric metric_type,
     double learning_rate,
     int epochs
 ){
@@ -245,6 +246,7 @@ void nn_train(
 
     for(int epoch = 0; epoch < epochs; epoch++) {
         double loss = 0;
+        double metric = 0;
 
         // shuffle the training set
         cnet_shuffle(idx_arr, train_size);
@@ -256,7 +258,7 @@ void nn_train(
             // pass the sample through the net
             double const *predicted = nn_predict(nn, X[sample]);
 
-            // compute the loss
+            // compute loss and metric
             cnet_get_loss(loss_type)(
                 predicted, 
                 Y[sample],
@@ -264,6 +266,11 @@ void nn_train(
                 nn->out_size
             );
             loss += cnet_mean(loss_arr, nn->out_size);
+            metric += cnet_get_metric(metric_type)(
+                predicted, 
+                Y[sample],
+                nn->out_size
+            );
 
             // backprop step
             nn_backward(
@@ -277,10 +284,14 @@ void nn_train(
 
         // log loss
         printf(
-            "[EPOCH %d/%d] - Loss: %lf \n",
+            "[EPOCH %d/%d] "
+            "- Loss: %lf "
+            "- %s: %lf \n",
             epoch,
             epochs,
-            loss / train_size
+            loss / train_size,
+            cnet_get_metric_name(metric_type),
+            metric / train_size
         );
     }
     free(loss_arr);

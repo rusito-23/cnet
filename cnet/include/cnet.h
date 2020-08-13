@@ -7,6 +7,7 @@
 
 #include "activation.h" 
 #include "loss.h" 
+#include "metrics.h" 
 
 
 /// cnet struct definition
@@ -118,7 +119,8 @@ const double *nn_predict(
  * @param double const** X: Inputs (size data_len x nn->in_size)
  * @param double const** Y: Expected output (size data_len x nn->out_size)
  * @param int data_len: Number of training samples
- * @param cnet_loss_type loss: Loss type to use
+ * @param cnet_loss loss_type: Loss type to use
+ * @param cnet_metric metric_type: Metric type to use
  * @param double learning_rate: Learning rate
  */
 void nn_train(
@@ -127,6 +129,7 @@ void nn_train(
     double **Y,
     int data_len,
     enum cnet_loss loss_type,
+    enum cnet_metric metric_type,
     double learning_rate,
     int epochs
 );

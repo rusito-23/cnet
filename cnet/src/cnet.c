@@ -6,13 +6,12 @@
 
 #include <assert.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include "cnet.h"
 #include "helpers.h"
 
 
 /**
- * Create Network. */
+ * Create CNet. */
 cnet *nn_init(
     int in_size,
     int out_size,
@@ -29,7 +28,7 @@ cnet *nn_init(
 
 
 /**
- * Free Network. */
+ * Free CNet. */
 void nn_free(
     cnet *nn
 ){
@@ -53,7 +52,7 @@ void nn_free(
 
 
 /**
- * Add a Layer to the Network. */
+ * Add a Layer to the CNet. */
 void nn_add(
     cnet *nn,
     int in_size,
@@ -94,13 +93,13 @@ void nn_add(
 
 
 /**
- * Network Forward Pass
+ * CNet Forward Pass
  *
  * Simply passes a given input (with expected size) through the net.
  * Does not return the result pointer, this should be accessed through
  * the nn->layers[last_layer - 1]->result;
  *
- * @param cnet const *nn: Network
+ * @param cnet const *nn: CNet
  * @param double const *X: Input (sized nn->in_size)
  */
 void nn_forward(
@@ -138,12 +137,12 @@ void nn_forward(
 
 /**
  *
- * Network Backward Pass
+ * CNet Backward Pass
  *
  * Performs a single backpropagation step, using SGD, hence
  * it only takes one train sample.
  *
- * @param cnet const *nn: Network
+ * @param cnet const *nn: CNet
  * @param double *X: Input (sized nn->in_size)
  * @param double *Y: Expected output (sized nn->out_size)
  * @param cnet_loss_type: Loss type to use
@@ -214,7 +213,7 @@ void nn_backward(
 
 
 /**
- * Network Prediction. */
+ * CNet Prediction. */
 const double *nn_predict(
     cnet const *nn,
     double const *X
@@ -228,7 +227,7 @@ const double *nn_predict(
 
 
 /**
- * Network Train Algorithm */
+ * CNet Train Algorithm */
 void nn_train(
     cnet const *nn,
     double **X,
@@ -296,4 +295,93 @@ void nn_train(
     }
     free(loss_arr);
     free(idx_arr);
+}
+
+
+/**
+ * Save CNet into File. */
+void nn_save(
+    cnet const* nn,
+    FILE *out
+){
+    // save basic network info
+    fprintf(out, "%d %d %d \n", nn->in_size, nn->out_size, nn->n_layers);
+
+    // save every layer info
+    for(int i = 0; i < nn->n_layers; i++) {
+        clayer *layer = nn->layers[i];
+        fprintf(
+            out,
+            "%d %d %d \n",
+            layer->in_size,
+            layer->out_size,
+            layer->act_type
+        );
+
+        // save every layer biases
+        for(int j = 0; j < layer->out_size; j++) {
+            fprintf(out, " %.20e", layer->bias[j]);
+        }
+        fprintf(out, "\n");
+
+        // save every layer weights
+        for(int j = 0; j < layer->out_size; j++) {
+            for(int k = 0; k < layer->in_size; k++) {
+                fprintf(out, " %.20e", layer->weights[j][k]);
+            }
+            fprintf(out, "\n");
+        }
+    }
+}
+
+
+/**
+ * Load CNet from File. */
+cnet *nn_load(
+    FILE *in
+){
+    // load basic network info
+    int in_size, out_size, n_layers;
+    fscanf(in, "%d %d %d \n", &in_size, &out_size, &n_layers);
+
+    // init cnet
+    cnet *nn = nn_init(in_size, out_size, n_layers);
+
+    for(int i = 0; i < nn->n_layers; i++) {
+        // load layer info
+        int in_size, out_size;
+        enum cnet_act act_type;
+        fscanf(
+            in,
+            "%d %d %d \n",
+            &in_size,
+            &out_size,
+            &act_type
+        );
+
+        // create layer
+        nn_add(
+            nn,
+            in_size,
+            out_size,
+            act_type
+        );
+        clayer *layer = nn->layers[i];
+
+        // load biases
+        for(int j = 0; j < layer->out_size; j++) {
+            fscanf(in, " %le", &(layer->bias[j]));
+        }
+        fscanf(in, "\n");
+
+        // load weights
+        for(int j = 0; j < layer->out_size; j++) {
+            for(int k = 0; k < layer->in_size; k++) {
+                fscanf(in, " %le", &(layer->weights[j][k]));
+            }
+            fscanf(in, "\n");
+        }
+    }
+
+    return nn;
 }

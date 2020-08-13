@@ -5,6 +5,7 @@
 #ifndef CNET_H
 #define CNET_H
 
+#include <stdio.h>
 #include "activation.h" 
 #include "loss.h" 
 #include "metrics.h" 
@@ -49,7 +50,7 @@ typedef struct clayer {
 
 
 /**
- * Create Network.
+ * Create CNet.
  *
  * Allocs the necessary memory for the network.
  *
@@ -66,9 +67,9 @@ cnet *nn_init(
 
 
 /**
- * Free Network.
+ * Free CNet.
  *
- * @param cnet *nn: Network
+ * @param cnet *nn: CNet
  */
 void nn_free(
     cnet *nn
@@ -76,14 +77,14 @@ void nn_free(
 
 
 /**
- * Add a Layer to the Network.
+ * Add a Layer to the CNet.
  *
  * Assumes that the nn_init method was called, and all cnet* attributes
  * are correctly initialized.
  * The weights for the layer will be initialized with uniform
  * random numbers between 0 and 1.
  *
- * @param cnet *nn: Network
+ * @param cnet *nn: CNet
  * @param int in_size: Input size for the new layer
  * @param int out_size: Output size for the new layer
  * @param cnet_act_type act_type: Activation type for the new layer.
@@ -97,9 +98,9 @@ void nn_add(
 
 
 /**
- * Network Prediction. 
+ * CNet Prediction. 
  *
- * @param const cnet *nn: Network
+ * @param const cnet *nn: CNet
  * @param const double *X: Input (sized nn->in_size)
  * @return const double *: Pointer to results (sized nn->out_size)
  */
@@ -115,7 +116,7 @@ const double *nn_predict(
  * Performs backward passes through the net using SGD (single training sample)
  * It shuffles both the X and Y in every epoch to achieve better results.
  *
- * @param const cnet *nn: Network
+ * @param const cnet *nn: CNet
  * @param double const** X: Inputs (size data_len x nn->in_size)
  * @param double const** Y: Expected output (size data_len x nn->out_size)
  * @param int data_len: Number of training samples
@@ -132,6 +133,40 @@ void nn_train(
     enum cnet_metric metric_type,
     double learning_rate,
     int epochs
+);
+
+
+/**
+ * Load the network from FILE.
+ *
+ * Initializes and reads the network weights from the given FILE.
+ * The FILE must follow the given structure, or else this function will return
+ * a corrupt nn and maybe even crash when being fred.
+ *
+ * @param FILE: network saved file.
+ * @return cnet *: cnet
+ */
+cnet *nn_load(
+    FILE *in
+);
+
+
+/**
+ * Save the network into FILE.
+ *
+ * Saves the given network into a file, following the following structure:
+ * in_size out_size n_layers
+ * layer_in_size layer_out_size layer_act_type
+ * layer_bias ...
+ * layer_weights ...
+ * ...
+ *
+ * @param cnet *nn: cnet
+ * @param FILE out: output file
+ */
+void nn_save(
+    cnet const *nn,
+    FILE *out
 );
 
 

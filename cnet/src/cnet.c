@@ -236,7 +236,8 @@ void nn_train(
     enum cnet_loss loss_type,
     enum cnet_metric metric_type,
     double learning_rate,
-    int epochs
+    int epochs,
+    FILE *history_file
 ){
 
     // init temporary helper arrays
@@ -281,7 +282,7 @@ void nn_train(
             );
         }
 
-        // log loss
+        // log metrics
         printf(
             "[EPOCH %d/%d] "
             "- Loss: %lf "
@@ -290,6 +291,14 @@ void nn_train(
             epochs,
             loss / train_size,
             cnet_get_metric_name(metric_type),
+            metric / train_size
+        );
+
+        // save history
+        fprintf(
+            history_file,
+            "%.20e %.20e \n",
+            loss / train_size,
             metric / train_size
         );
     }

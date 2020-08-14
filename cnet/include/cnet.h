@@ -132,7 +132,8 @@ void nn_train(
     enum cnet_loss loss_type,
     enum cnet_metric metric_type,
     double learning_rate,
-    int epochs
+    int epochs,
+    FILE *history_file
 );
 
 

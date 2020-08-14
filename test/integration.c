@@ -55,6 +55,9 @@ void test_random_inputs() {
             Y[i][j] = (double)rand()/RAND_MAX*2.0-1.0;
         }
     }
+
+    // create a file to save output
+    FILE *history_file = fopen("test_random_inputs.dat", "w");
     
     // train
     nn_train(
@@ -65,7 +68,8 @@ void test_random_inputs() {
         loss_mse,
         metric_accuracy,
         lr,
-        epochs
+        epochs,
+        history_file
     );
 
     // free all objects

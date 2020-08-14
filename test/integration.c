@@ -16,17 +16,39 @@
  * makes the app crash.
  * */
 void test_random_inputs() {
-    // set network properties
-    int input_size = 6;
-    int output_size = 10;
-    int hidden_size = 9;
-    int n_layers = 4;
-    int n_samples = 100;
-    int epochs = 1000;
-    double lr = 0.001;
+    // network properties
+    int input_size = 2;
+    int output_size = 1;
+    int hidden_size = 2;
+    int n_layers = 2;
+    int n_samples = 4;
+    int epochs = 10000;
+    double lr = 0.1;
 
-    /// initialize neural network with 3 layers
-    /// input size 2 and output 1
+    // create training samples
+
+    double **X = malloc(sizeof(double*)*n_samples);
+    double **Y = malloc(sizeof(double*)*n_samples);
+    for (int i = 0; i < n_samples; i++) {
+        X[i] = malloc(sizeof(double)*input_size);
+        Y[i] = malloc(sizeof(double)*output_size);
+    } 
+
+    X[0][0] = 0.0f;
+    X[0][1] = 0.0f;
+    X[1][0] = 1.0f;
+    X[1][1] = 0.0f;
+    X[2][0] = 0.0f;
+    X[2][1] = 1.0f;
+    X[3][0] = 1.0f;
+    X[3][1] = 1.0f;
+
+    Y[0][0] = 0.0f;
+    Y[1][0] = 1.0f;
+    Y[2][0] = 1.0f;
+    Y[0][0] = 0.0f;
+
+    /// initialize neural network
     cnet *nn = nn_init(
         input_size,
         output_size,
@@ -35,29 +57,10 @@ void test_random_inputs() {
         
     /// add layers
     nn_add(nn, input_size,  hidden_size, act_sigmoid);
-    nn_add(nn, hidden_size, hidden_size, act_sigmoid);
-    nn_add(nn, hidden_size, hidden_size, act_sigmoid);
     nn_add(nn, hidden_size, output_size, act_sigmoid);
 
-    /// generate random samples
-    double** X = (double **)malloc(sizeof(double *)*n_samples);
-    double** Y = (double **)malloc(sizeof(double *)*n_samples);
-
-    for (int i = 0; i < n_samples; i++) {
-        X[i] = (double*)malloc(sizeof(double)*input_size);
-        Y[i] = (double*)malloc(sizeof(double)*output_size);
-
-        for (int j = 0; j < input_size; j++) {
-            X[i][j] = (double)rand()/RAND_MAX*2.0-1.0;
-        }
-
-        for (int j = 0; j < output_size; j++) {
-            Y[i][j] = (double)rand()/RAND_MAX*2.0-1.0;
-        }
-    }
-
     // create a file to save output
-    FILE *history_file = fopen("test_random_inputs.dat", "w");
+    FILE *history_file = fopen("test/test_random_inputs.dat", "w");
     
     // train
     nn_train(
@@ -73,12 +76,6 @@ void test_random_inputs() {
     );
 
     // free all objects
-    for (int i = 0; i < n_samples; i++) {
-        free(X[i]);
-        free(Y[i]);
-    }
-    free(X);
-    free(Y);
     nn_free(nn);
 }
 

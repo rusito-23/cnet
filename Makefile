@@ -52,11 +52,11 @@ $(CNET): $(CNET_LIB)
 TEST := test
 TEST_SDIR := $(TEST)
 
-$(XDIR)/%.tests: $(TEST_SDIR)/%.c
+$(XDIR)/%.tests: $(TEST_SDIR)/%.c $(CNET_LIB)
 	@mkdir -p $(XDIR)
-	$(CC) $(FLAGS) -o $@ -I${CNET_IDIR} -l${CNET} -L${LDIR} $?
+	$(CC) $(FLAGS) -o $@ -I${CNET_IDIR} -l${CNET} -L${LDIR} $<
 
-integration-tests: $(CNET) $(XDIR)/integration.tests
+integration-tests: $(XDIR)/integration.tests
 
 # ----------------------- #
 #	  CLEANS

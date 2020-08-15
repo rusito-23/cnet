@@ -230,9 +230,12 @@ const double *nn_predict(
  * CNet Train Algorithm */
 void nn_train(
     cnet const *nn,
-    double **X,
-    double **Y,
+    double **X_train,
+    double **Y_train,
+    double **X_val,
+    double **Y_val,
     int train_size,
+    int val_size,
     enum cnet_loss loss_type,
     enum cnet_metric metric_type,
     double learning_rate,
@@ -244,69 +247,95 @@ void nn_train(
     assert(nn->layers[nn->last_layer - 1]->out_size == nn->out_size);
     assert(nn->layers[0]->in_size == nn->in_size);
 
+    // init history file
+    fprintf(history_file, "train_loss val_loss train_metric val_metric\n");
+
     // init temporary helper arrays
-    double *loss_arr = malloc(sizeof(double) * nn->out_size);
     int *idx_arr = cnet_idx(train_size);
 
     for(int epoch = 0; epoch < epochs; epoch++) {
-        double loss = 0;
-        double metric = 0;
+        double train_loss = 0, val_loss = 0; 
+        double train_metric = 0, val_metric = 0;
 
         // shuffle the training set
-        // cnet_shuffle(idx_arr, train_size);
+        cnet_shuffle(idx_arr, train_size);
 
-        // for each sample in the dataset (SGD - batch size 1)
+        // epoch training
+        // SGD - batch size 1
         for(int s = 0; s < train_size; s++) {
             int sample = idx_arr[s];
 
-            // pass the sample through the net
-            double const *predicted = nn_predict(nn, X[sample]);
+            // pass the training sample through the net
+            double const *train_pred = nn_predict(nn, X_train[sample]);
 
-            // compute loss and metric
-            cnet_get_loss(loss_type)(
-                predicted, 
-                Y[sample],
-                loss_arr,
+            // compute training loss and metric
+            train_loss += cnet_loss_mean(
+                loss_type,
+                train_pred,
+                Y_train[sample],
                 nn->out_size
             );
-            loss += cnet_mean(loss_arr, nn->out_size);
-            metric += cnet_get_metric(metric_type)(
-                predicted, 
-                Y[sample],
+            train_metric += cnet_get_metric(metric_type)(
+                train_pred, 
+                Y_train[sample],
                 nn->out_size
             );
 
             // backprop step
             nn_backward(
                 nn,
-                X[sample],
-                Y[sample],
+                X_train[sample],
+                Y_train[sample],
                 loss_type,
                 learning_rate
             );
         }
 
+        // epoch validation
+        for(int s = 0; s < val_size; s++) {
+            // pass the training sample through the net
+            double const *val_pred = nn_predict(nn, X_val[s]);
+
+            val_loss += cnet_loss_mean(
+                loss_type,
+                val_pred,
+                Y_val[s],
+                nn->out_size
+            );
+            val_metric += cnet_get_metric(metric_type)(
+                val_pred, 
+                Y_val[s],
+                nn->out_size
+            );
+        } 
+
         // log metrics
         printf(
             "[EPOCH %d/%d] "
-            "- Loss: %lf "
-            "- %s: %lf \n",
+            "- Train Loss: %lf "
+            "- Train %s: %lf "
+            "- Val Loss: %lf "
+            "- Val %s: %lf \n",
             epoch,
             epochs,
-            loss / train_size,
+            train_loss / train_size,
             cnet_get_metric_name(metric_type),
-            metric / train_size
+            train_metric / train_size,
+            val_loss / val_size,
+            cnet_get_metric_name(metric_type),
+            val_metric / val_size
         );
 
         // save history
         fprintf(
             history_file,
-            "%.20e %.20e \n",
-            loss / train_size,
-            metric / train_size
+            "%.20e %.20e %.20e %.20e\n",
+            train_loss / train_size,
+            val_loss / val_size,
+            train_metric / train_size,
+            val_metric / val_size
         );
     }
-    free(loss_arr);
     free(idx_arr);
 }
 

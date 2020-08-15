@@ -4,6 +4,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 #include "cnet.h"
 
 
@@ -16,37 +17,53 @@
  * makes the app crash.
  * */
 void test_random_inputs() {
-    // network properties
-    int input_size = 2;
+    // sizes
+    int input_size = 4;
     int output_size = 1;
-    int hidden_size = 2;
-    int n_layers = 2;
-    int n_samples = 4;
-    int epochs = 15000;
-    double lr = 0.1;
+    int hidden_size = 8;
+
+    // layers
+    int n_layers = 4;
+
+    // samples
+    int train_size = 100;
+    int val_size = 30;
+
+    // hyperparameters
+    int epochs = 500;
+    double lr = 0.001;
 
     // create training samples
 
-    double **X = malloc(sizeof(double*)*n_samples);
-    double **Y = malloc(sizeof(double*)*n_samples);
-    for (int i = 0; i < n_samples; i++) {
-        X[i] = malloc(sizeof(double)*input_size);
-        Y[i] = malloc(sizeof(double)*output_size);
+    double **X_train = malloc(sizeof(double*)*train_size);
+    double **Y_train = malloc(sizeof(double*)*train_size);
+    for (int i = 0; i < train_size; i++) {
+        X_train[i] = malloc(sizeof(double)*input_size);
+        for(int j = 0; j < input_size; j++) {
+            X_train[i][j] = ((double)rand())/((double)RAND_MAX);
+        }
+
+        Y_train[i] = malloc(sizeof(double)*output_size);
+        for(int j = 0; j < output_size; j++) {
+            Y_train[i][j] = round((double)rand())/((double)RAND_MAX);
+        }
     } 
 
-    X[0][0] = 0.0f;
-    X[0][1] = 0.0f;
-    X[1][0] = 1.0f;
-    X[1][1] = 0.0f;
-    X[2][0] = 0.0f;
-    X[2][1] = 1.0f;
-    X[3][0] = 1.0f;
-    X[3][1] = 1.0f;
+    // create validation samples
 
-    Y[0][0] = 0.0f;
-    Y[1][0] = 1.0f;
-    Y[2][0] = 1.0f;
-    Y[0][0] = 0.0f;
+    double **X_val = malloc(sizeof(double*)*val_size);
+    double **Y_val = malloc(sizeof(double*)*val_size);
+    for (int i = 0; i < val_size; i++) {
+        X_val[i] = malloc(sizeof(double)*input_size);
+        for(int j = 0; j < input_size; j++) {
+            X_val[i][j] = ((double)rand())/((double)RAND_MAX);
+        }
+
+        Y_val[i] = malloc(sizeof(double)*output_size);
+        for(int j = 0; j < output_size; j++) {
+            Y_val[i][j] = round((double)rand())/((double)RAND_MAX);
+        }
+    } 
 
     /// initialize neural network
     cnet *nn = nn_init(
@@ -57,6 +74,8 @@ void test_random_inputs() {
         
     /// add layers
     nn_add(nn, input_size,  hidden_size, act_sigmoid);
+    nn_add(nn, hidden_size,  hidden_size, act_sigmoid);
+    nn_add(nn, hidden_size,  hidden_size, act_sigmoid);
     nn_add(nn, hidden_size, output_size, act_sigmoid);
 
     // create a file to save output
@@ -65,9 +84,12 @@ void test_random_inputs() {
     // train
     nn_train(
         nn,
-        X,
-        Y,
-        n_samples,
+        X_train,
+        Y_train,
+        X_val,
+        Y_val,
+        train_size,
+        val_size,
         loss_mse,
         metric_accuracy,
         lr,

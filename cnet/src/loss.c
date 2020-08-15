@@ -4,7 +4,9 @@
 
 
 #include <math.h>
+#include <stdlib.h>
 #include "loss.h"
+#include "helpers.h"
 
 
 /// mse
@@ -48,4 +50,23 @@ cnet_loss_fun cnet_get_loss_dx(enum cnet_loss type) {
     switch(type) {
         case loss_mse: return mse_dx;
     }
+}
+
+
+double cnet_loss_mean(
+    enum cnet_loss type,
+    double const *pred,
+    double const *real,
+    int size
+){
+    double *loss_arr = malloc(sizeof(double) * size);
+    cnet_get_loss(type)(
+        pred, 
+        real,
+        loss_arr,
+        size
+    );
+    double loss_mean = cnet_mean(loss_arr, size);
+    free(loss_arr);
+    return loss_mean;
 }

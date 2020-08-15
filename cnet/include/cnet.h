@@ -117,18 +117,24 @@ const double *nn_predict(
  * It shuffles both the X and Y in every epoch to achieve better results.
  *
  * @param const cnet *nn: CNet
- * @param double const** X: Inputs (size data_len x nn->in_size)
- * @param double const** Y: Expected output (size data_len x nn->out_size)
- * @param int data_len: Number of training samples
+ * @param double const** X_train: Train Inputs
+ * @param double const** Y_train: Train Expected output
+ * @param double const** X_val: Val Inputs
+ * @param double const** Y_val: Val Expected output
+ * @param int train_size: Number of training samples
+ * @param int val_size: Number of validation samples
  * @param cnet_loss loss_type: Loss type to use
  * @param cnet_metric metric_type: Metric type to use
  * @param double learning_rate: Learning rate
  */
 void nn_train(
     cnet const *nn,
-    double **X,
-    double **Y,
-    int data_len,
+    double **X_train,
+    double **Y_train,
+    double **X_val,
+    double **Y_val,
+    int train_size,
+    int val_size,
     enum cnet_loss loss_type,
     enum cnet_metric metric_type,
     double learning_rate,

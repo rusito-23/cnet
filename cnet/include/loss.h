@@ -51,4 +51,23 @@ cnet_loss_fun cnet_get_loss(enum cnet_loss type);
 cnet_loss_fun cnet_get_loss_dx(enum cnet_loss type);
 
 
+/**
+ * Calculate loss mean for given arrays.
+ * Uses the loss for each of the elements in the given arrays
+ * (should have the same size), and returns the mean loss between these
+ * arrays.
+ *
+ * @param enum cnet_loss_type type: Loss Type
+ * @param double *pred: Predicted values
+ * @param double *real: Expected values
+ * @param int size: Size of pred and real
+ */
+double cnet_loss_mean(
+    enum cnet_loss type,
+    double const *pred,
+    double const *real,
+    int size
+);
+
+
 #endif /* CNET_LOSS_H */

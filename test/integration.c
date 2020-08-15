@@ -22,7 +22,7 @@ void test_random_inputs() {
     int hidden_size = 2;
     int n_layers = 2;
     int n_samples = 4;
-    int epochs = 10000;
+    int epochs = 15000;
     double lr = 0.1;
 
     // create training samples

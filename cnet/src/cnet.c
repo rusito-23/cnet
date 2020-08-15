@@ -239,6 +239,10 @@ void nn_train(
     int epochs,
     FILE *history_file
 ){
+    // check nn initialization
+    assert(nn->last_layer == nn->n_layers);
+    assert(nn->layers[nn->last_layer - 1]->out_size == nn->out_size);
+    assert(nn->layers[0]->in_size == nn->in_size);
 
     // init temporary helper arrays
     double *loss_arr = malloc(sizeof(double) * nn->out_size);
@@ -249,7 +253,7 @@ void nn_train(
         double metric = 0;
 
         // shuffle the training set
-        cnet_shuffle(idx_arr, train_size);
+        // cnet_shuffle(idx_arr, train_size);
 
         // for each sample in the dataset (SGD - batch size 1)
         for(int s = 0; s < train_size; s++) {

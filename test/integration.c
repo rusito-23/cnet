@@ -30,7 +30,7 @@ void test_random_inputs() {
     int val_size = 30;
 
     // hyperparameters
-    int epochs = 500;
+    int epochs = 800;
     double lr = 0.001;
 
     // create training samples
@@ -45,7 +45,7 @@ void test_random_inputs() {
 
         Y_train[i] = malloc(sizeof(double)*output_size);
         for(int j = 0; j < output_size; j++) {
-            Y_train[i][j] = round((double)rand())/((double)RAND_MAX);
+            Y_train[i][j] = round((double)rand()/((double)RAND_MAX));
         }
     } 
 
@@ -61,7 +61,7 @@ void test_random_inputs() {
 
         Y_val[i] = malloc(sizeof(double)*output_size);
         for(int j = 0; j < output_size; j++) {
-            Y_val[i][j] = round((double)rand())/((double)RAND_MAX);
+            Y_val[i][j] = round((double)rand()/((double)RAND_MAX));
         }
     } 
 

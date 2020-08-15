@@ -5,7 +5,7 @@
 
 
 CC := gcc
-FLAGS := -Wall -Werror -Wextra -pedantic
+CFLAGS := -Wall -Werror -Wextra -pedantic
 AR := ar
 RM := rm -rf
 
@@ -35,7 +35,7 @@ CNET_OBJ := $(CNET_SRC:$(CNET_SDIR)/%.c=$(ODIR)/%.o)
 
 $(ODIR)/%.o: $(CNET_SDIR)/%.c
 	@mkdir -p $(ODIR)
-	$(CC) $(FLAGS) -I$(CNET_IDIR) -c $? -o $@
+	$(CC) $(CFLAGS) -I$(CNET_IDIR) -c $? -o $@
 
 $(CNET_LIB): $(CNET_OBJ)
 	@mkdir -p $(LDIR)
@@ -54,9 +54,26 @@ TEST_SDIR := $(TEST)
 
 $(XDIR)/%.tests: $(TEST_SDIR)/%.c $(CNET_LIB)
 	@mkdir -p $(XDIR)
-	$(CC) $(FLAGS) -o $@ -I${CNET_IDIR} -l${CNET} -L${LDIR} $<
+	$(CC) $(CFLAGS) -o $@ -I$(CNET_IDIR) -l$(CNET) -L$(LDIR) $<
 
 integration-tests: $(XDIR)/integration.tests
+
+
+# ----------------------- #
+#	  MNIST
+# ----------------------- #
+
+MNIST := mnist
+MNIST_SDIR := $(MNIST)
+MNIST_SRC := $(wildcard $(MNIST)/*.c)
+MNIST_IN := $(wildcard $(MNIST)/*.h)
+
+$(XDIR)/mnist: $(MNIST_SRC) $(MNIST_IN) $(CNET_LIB)
+	@mkdir -p $(XDIR)
+	$(CC) $(CFLAGS) -o $@ -I$(CNET_IDIR) -l$(CNET) -L$(LDIR) $<
+
+mnist: $(XDIR)/mnist
+
 
 # ----------------------- #
 #	  CLEANS

@@ -50,3 +50,16 @@ int *cnet_idx(int size) {
     }
     return ret;
 }
+
+
+/**
+ * ArgMax */
+double cnet_argmax(double *arr, int size) {
+    double max_idx = 0;
+    for(int i = 1; i < size; i++) {
+        if(arr[i] > arr[(int)max_idx]) {
+            max_idx = i;
+        }
+    }
+    return max_idx;
+}

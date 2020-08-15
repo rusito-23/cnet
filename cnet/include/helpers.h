@@ -52,4 +52,16 @@ void cnet_shuffle(int *arr, int size);
 int *cnet_idx(int size);
 
 
+/**
+ * ArgMax
+ *
+ * Returns the index for the max element in a given array.
+ *
+ * @param double *arr;
+ * @param int size: arr size
+ * @return double: Index of max element (as double) 
+ */
+double cnet_argmax(double *arr, int size);
+
+
 #endif /* CNET_HELPERS_H */

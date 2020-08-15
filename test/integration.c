@@ -18,20 +18,19 @@
  * */
 void test_random_inputs() {
     // sizes
-    int input_size = 4;
-    int output_size = 1;
-    int hidden_size = 8;
+    int input_size = 784;
+    int output_size = 10;
 
     // layers
-    int n_layers = 4;
+    int n_layers = 3;
 
     // samples
-    int train_size = 100;
-    int val_size = 30;
+    int train_size = 600;
+    int val_size = 100;
 
     // hyperparameters
-    int epochs = 800;
-    double lr = 0.001;
+    int epochs = 1000;
+    double lr = 1;
 
     // create training samples
 
@@ -73,10 +72,9 @@ void test_random_inputs() {
     );
         
     /// add layers
-    nn_add(nn, input_size,  hidden_size, act_sigmoid);
-    nn_add(nn, hidden_size,  hidden_size, act_sigmoid);
-    nn_add(nn, hidden_size,  hidden_size, act_sigmoid);
-    nn_add(nn, hidden_size, output_size, act_sigmoid);
+    nn_add(nn, input_size, 64, act_sigmoid);
+    nn_add(nn, 64, 32, act_sigmoid);
+    nn_add(nn, 32, output_size, act_sigmoid);
 
     // create a file to save output
     FILE *history_file = fopen("test/test_random_inputs.dat", "w");
@@ -99,6 +97,17 @@ void test_random_inputs() {
 
     // free all objects
     nn_free(nn);
+
+    for(int i = 0; i < train_size; i++) {
+        free(X_train[i]);
+        free(Y_train[i]);
+    }
+    free(X_train); free(Y_train);
+    for(int i = 0; i < val_size; i++) {
+        free(X_val[i]);
+        free(Y_val[i]);
+    }
+    free(X_val); free(Y_val);
 }
 
 

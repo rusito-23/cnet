@@ -6,7 +6,7 @@
 #include <float.h>
 #include "activation.h"
 
-#define stable(x) x - DBL_MAX
+#define stable(x) x
 
 
 /// ReLU

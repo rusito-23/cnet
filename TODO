@@ -1,9 +1,0 @@
-
-TODOS
-
-[X] - Add metrics
-[X] - Fix loss calculus
-[] - Add more tests
-[] - Fix softmax (nn)
-[] - Add loss and metrics graphics
-[X] - Add load and save model from file

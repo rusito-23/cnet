@@ -5,10 +5,11 @@
 #include <stdio.h>
 #include "cnet.h"
 #include "dataset.h"
+#include "config.h"
 
 
 int main() {
-    // define hiperparameters
+    // hyperparameters
     double lr = 0.01;
     double epochs = 100;
 
@@ -39,7 +40,7 @@ int main() {
     nn_add(nn, 32,         output_size, act_softmax);
 
     // create a file to save output
-    FILE *history_file = fopen("mnist/history.dat", "w");
+    FILE *history_file = fopen(HISTORY_FILE_PATH, "w");
 
     // train
     nn_train(

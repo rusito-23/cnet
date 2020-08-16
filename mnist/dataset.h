@@ -16,21 +16,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
-
-
-// path for data
-#define TRAIN_IM_PATH "./mnist/data/train-images.idx3-ubyte"
-#define TRAIN_LABEL_PATH "./mnist/data/train-labels.idx1-ubyte"
-#define VAL_IM_PATH "./mnist/data/t10k-images.idx3-ubyte"
-#define VAL_LABEL_PATH "./mnist/data/t10k-labels.idx1-ubyte"
-
-// helpful defines
-#define INPUT_SIZE 784 // 28*28
-#define OUTPUT_SIZE 10
-#define TRAIN_SIZE 60000
-#define VAL_SIZE 10000
-#define INFO_IM_LEN 4
-#define INFO_LABEL_LEN 2
+#include "config.h"
 
 
 // mnist dataset structure

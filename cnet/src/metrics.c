@@ -5,9 +5,10 @@
 
 #include <math.h>
 #include "metrics.h"
+#include "helpers.h"
 
 
-double accuracy(
+double accuracy_round(
     double const *pred,
     double const *real,
     int size
@@ -20,18 +21,31 @@ double accuracy(
 }
 
 
+double accuracy_argmax(
+    double const *pred,
+    double const *real,
+    int size
+){
+    double pred_max = cnet_argmax(pred, size);
+    double real_max = cnet_argmax(real, size);
+    return pred_max == real_max ? 1 : 0;
+}
+
+
 /// getters
 
 
 cnet_metric_fun cnet_get_metric(enum cnet_metric type) {
     switch(type) {
-        case metric_accuracy: return accuracy;
+        case metric_accuracy_round: return accuracy_round;
+        case metric_accuracy_argmax: return accuracy_argmax;
     }
 }
 
 
 const char *cnet_get_metric_name(enum cnet_metric type) {
     switch(type) {
-        case metric_accuracy: return "Accuracy";
+        case metric_accuracy_round: return "Accuracy";
+        case metric_accuracy_argmax: return "Accuracy";
     }
 }

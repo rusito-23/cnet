@@ -54,7 +54,7 @@ int *cnet_idx(int size) {
 
 /**
  * ArgMax */
-double cnet_argmax(double *arr, int size) {
+double cnet_argmax(double const *arr, int size) {
     double max_idx = 0;
     for(int i = 1; i < size; i++) {
         if(arr[i] > arr[(int)max_idx]) {

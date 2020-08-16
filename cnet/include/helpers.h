@@ -61,7 +61,7 @@ int *cnet_idx(int size);
  * @param int size: arr size
  * @return double: Index of max element (as double) 
  */
-double cnet_argmax(double *arr, int size);
+double cnet_argmax(double const *arr, int size);
 
 
 #endif /* CNET_HELPERS_H */

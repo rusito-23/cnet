@@ -13,8 +13,8 @@ int main() {
     double epochs = 100;
 
     // define dataset variables
-    int train_size = TRAIN_SIZE;
-    int val_size = VAL_SIZE;
+    int train_size = 600;
+    int val_size = 60;
 
     // define input / output
     int output_size = OUTPUT_SIZE;
@@ -36,7 +36,7 @@ int main() {
     nn_add(nn, 128,        128,         act_sigmoid);
     nn_add(nn, 128,        64,          act_sigmoid);
     nn_add(nn, 64,         32,          act_sigmoid);
-    nn_add(nn, 32,         output_size, act_sigmoid);
+    nn_add(nn, 32,         output_size, act_softmax);
 
     // create a file to save output
     FILE *history_file = fopen("mnist/history.dat", "w");
@@ -51,7 +51,7 @@ int main() {
         ds->train_size,
         ds->val_size,
         loss_mse,
-        metric_accuracy,
+        metric_accuracy_argmax,
         lr,
         epochs,
         history_file

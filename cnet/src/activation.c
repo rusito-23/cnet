@@ -6,8 +6,6 @@
 #include <float.h>
 #include "activation.h"
 
-#define stable(x) x
-
 
 /// ReLU
 
@@ -70,11 +68,11 @@ void softmax(
 ){
     double denom = 0;
     for(int i = 0; i < size; i++) {
-        denom += expf(stable(src[i]));
+        denom += expf(src[i]);
     }
 
     for(int i = 0; i < size; i++) {
-        dst[i] = expf(stable(src[i])) / denom;
+        dst[i] = expf(src[i]) / denom;
     }
 }
 
@@ -86,15 +84,15 @@ void softmax_dx(
 ){
     double denom = 0;
     for(int i = 0; i < size; i++) {
-        denom += expf(stable(src[i]));
+        denom += expf(src[i]);
     }
 
     for(int i = 0; i < size; i++) {
-        double comm = -expf(stable(src[i]))/pow(denom, 2);
+        double comm = -expf(src[i])/pow(denom, 2);
         double factor = 0;
 
         for(int j = 0; i < size && i != j; j++) {
-            factor += expf(stable(src[j]));
+            factor += expf(src[j]);
         }
 
         dst[i] = comm*factor;

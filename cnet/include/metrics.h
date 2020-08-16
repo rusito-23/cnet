@@ -9,7 +9,8 @@
 /* Available Types */
 
 enum cnet_metric {
-    metric_accuracy
+    metric_accuracy_round,
+    metric_accuracy_argmax
 };
 
 

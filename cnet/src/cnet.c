@@ -201,11 +201,11 @@ void nn_backward(
         // update the weights and biases
         for(int i = 0; i < layer->out_size; i++) {
             double dC_dB = layer->dA_dZ[i] * layer->dC_dA[i];
-            layer->bias[i] -= learning_rate * dC_dB;
+            layer->bias[i] += learning_rate * dC_dB;
 
             for(int j = 0; j < layer->in_size; j++) {
                 double dC_dW = dZ_dW[j] * dC_dB;
-                layer->weights[i][j] -= learning_rate * dC_dW;
+                layer->weights[i][j] += learning_rate * dC_dW;
             }
         }
     }

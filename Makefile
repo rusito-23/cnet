@@ -68,11 +68,12 @@ MNIST_SDIR := $(MNIST)
 MNIST_SRC := $(wildcard $(MNIST)/*.c)
 MNIST_IN := $(wildcard $(MNIST)/*.h)
 
-$(XDIR)/mnist: $(MNIST_SRC) $(MNIST_IN) $(CNET_LIB)
+$(XDIR)/mnist.%: $(MNIST_SDIR)/%.c $(MNIST_IN) $(CNET_LIB)
 	@mkdir -p $(XDIR)
 	$(CC) $(CFLAGS) -o $@ -I$(CNET_IDIR) -l$(CNET) -L$(LDIR) $<
 
-mnist: $(XDIR)/mnist
+mnist-train: $(XDIR)/mnist.train
+mnist-predict: $(XDIR)/mnist.predict
 
 
 # ----------------------- #

@@ -10,8 +10,8 @@
 
 int main() {
     // hyperparameters
-    double lr = 0.01;
-    double epochs = 100;
+    double lr = 0.001;
+    double epochs = 50;
 
     // define dataset variables
     int train_size = 600;
@@ -22,7 +22,8 @@ int main() {
     int input_size = INPUT_SIZE;
 
     // load mnist dataset
-    mnist_dataset *ds = mnist_init(train_size, val_size);
+    mnist_dataset *train_set = mnist_train_set(train_size);
+    mnist_dataset *val_set = mnist_val_set(val_size);
 
     // init model
     int n_layers = 5;
@@ -45,12 +46,12 @@ int main() {
     // train
     nn_train(
         nn,
-        ds->X_train,
-        ds->Y_train,
-        ds->X_val,
-        ds->Y_val,
-        ds->train_size,
-        ds->val_size,
+        train_set->images,
+        train_set->labels,
+        val_set->images,
+        val_set->labels,
+        train_set->size,
+        val_set->size,
         loss_mse,
         metric_accuracy_argmax,
         lr,
@@ -58,9 +59,17 @@ int main() {
         history_file
     );
 
+    // save model
+    FILE *model_file = fopen(MODEL_FILE_PATH, "w");
+    nn_save(
+        nn,
+        model_file
+    );
+
     // free all objects
     nn_free(nn);
-    mnist_free(ds);
+    mnist_free(train_set);
+    mnist_free(val_set);
 
     return 0;
 }

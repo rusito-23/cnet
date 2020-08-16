@@ -22,18 +22,16 @@
 // mnist dataset structure
 
 typedef struct mnist_dataset {
-    int train_size, val_size;
-    double **X_train;
-    double **Y_train;
-    double **X_val;
-    double **Y_val;
+    int size;
+    double **images;
+    double **labels;
 } mnist_dataset;
 
 
-// functions
+// file parse functions
 
 void mnist_read_data_image_file(
-    char *file_path,
+    char const *file_path,
     double **data,
     int data_len
 ){
@@ -59,8 +57,11 @@ void mnist_read_data_image_file(
 }
 
 
+// init and free functions
+
+
 void mnist_read_data_label_file(
-    char *file_path,
+    char const *file_path,
     double **data,
     int data_len
 ){
@@ -87,59 +88,37 @@ void mnist_read_data_label_file(
 
 
 mnist_dataset *mnist_init(
-    int train_size,
-    int val_size
+    int size,
+    char const *image_file_path,
+    char const *label_file_path
 ){
     // alloc dataset struct
     mnist_dataset *ds = malloc(sizeof(mnist_dataset));
 
     // init basic info
-    assert(train_size <= TRAIN_SIZE);
-    assert(val_size <= VAL_SIZE);
-    ds->train_size = train_size;
-    ds->val_size = val_size;
+    assert(size <= VAL_SIZE || size <= TRAIN_SIZE);
+    ds->size = size;
 
     // alloc data arrays
-    ds->X_train = malloc(sizeof(double *)*train_size);
-    ds->Y_train = malloc(sizeof(double *)*train_size);
-    for(int i = 0; i < train_size; i++) {
-        ds->X_train[i] = malloc(sizeof(double)*INPUT_SIZE);
-        ds->Y_train[i] = malloc(sizeof(double)*OUTPUT_SIZE);
-    }
-
-    ds->X_val = malloc(sizeof(double *)*val_size);
-    ds->Y_val = malloc(sizeof(double *)*val_size);
-    for(int i = 0; i < val_size; i++) {
-        ds->X_val[i] = malloc(sizeof(double)*INPUT_SIZE);
-        ds->Y_val[i] = malloc(sizeof(double)*OUTPUT_SIZE);
+    ds->images = malloc(sizeof(double *)*size);
+    ds->labels = malloc(sizeof(double *)*size);
+    for(int i = 0; i < size; i++) {
+        ds->images[i] = malloc(sizeof(double)*INPUT_SIZE);
+        ds->labels[i] = malloc(sizeof(double)*OUTPUT_SIZE);
     }
 
     // read train images
     mnist_read_data_image_file(
-        TRAIN_IM_PATH,
-        ds->X_train,
-        ds->train_size
-    );
-
-    // read val images
-    mnist_read_data_image_file(
-        VAL_IM_PATH,
-        ds->X_val,
-        ds->val_size
+        image_file_path,
+        ds->images,
+        ds->size
     );
 
     // read train labels
     mnist_read_data_label_file(
-        TRAIN_LABEL_PATH,
-        ds->Y_train,
-        ds->train_size
-    );
-
-    // read val labels
-    mnist_read_data_label_file(
-        VAL_LABEL_PATH,
-        ds->Y_val,
-        ds->val_size
+        label_file_path,
+        ds->labels,
+        ds->size
     );
 
     return ds;
@@ -150,22 +129,40 @@ void mnist_free(
     mnist_dataset *ds
 ){
     // free data arrays
-    for(int i = 0; i < ds->train_size; i++) {
-        free(ds->X_train[i]);
-        free(ds->Y_train[i]);
+    for(int i = 0; i < ds->size; i++) {
+        free(ds->images[i]);
+        free(ds->labels[i]);
     }
-    free(ds->X_train);
-    free(ds->Y_train);
-
-    for(int i = 0; i < ds->val_size; i++) {
-        free(ds->X_val[i]);
-        free(ds->Y_val[i]);
-    }
-    free(ds->X_val);
-    free(ds->Y_val);
+    free(ds->images);
+    free(ds->labels);
 
     // free struct
     free(ds);
+}
+
+
+// train and val set
+
+
+mnist_dataset *mnist_train_set(
+    int size
+){
+    return mnist_init(
+        size,
+        TRAIN_IM_PATH,
+        TRAIN_LABEL_PATH
+    );
+}
+
+
+mnist_dataset *mnist_val_set(
+    int size
+){
+    return mnist_init(
+        size,
+        VAL_IM_PATH,
+        VAL_LABEL_PATH 
+    );
 }
 
 

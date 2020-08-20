@@ -6,8 +6,11 @@
 
 #include <assert.h>
 #include <stdlib.h>
-#include "cnet.h"
-#include "helpers.h"
+#include "../include/cnet.h"
+#include "../include/loss.h"
+#include "../include/activation.h"
+#include "../include/helpers.h"
+#include "../include/metrics.h"
 
 
 /**
@@ -34,16 +37,13 @@ void nn_free(
 ){
     for(int i = 0; i < nn->n_layers; i++) {
         struct clayer *layer = nn->layers[i];
-        for(int j = 0; j < layer->out_size; j++) {
+        for(int j = 0; j < layer->out_size; j++)
             free(layer->weights[j]);
-        }
 
         free(layer->weights);
         free(layer->bias);
-        free(layer->A);
-        free(layer->Z);
-        free(layer->dC_dA);
-        free(layer->dA_dZ);
+        free(layer->output);
+        free(layer->delta);
         free(layer);
     }
     free(nn->layers);
@@ -57,7 +57,7 @@ void nn_add(
     cnet *nn,
     int in_size,
     int out_size,
-    enum cnet_act act_type
+    enum cnet_act_type activation
 ){
     // check the input/output size
     assert(nn->last_layer == 0 ||
@@ -68,14 +68,12 @@ void nn_add(
     struct clayer* layer = malloc(sizeof(clayer));
     layer->in_size = in_size;
     layer->out_size = out_size;
-    layer->act_type = act_type;
+    layer->activation = activation;
 
     layer->weights = malloc(sizeof(double*)*layer->out_size);
     layer->bias = malloc(sizeof(double)*layer->out_size);
-    layer->A = malloc(sizeof(double)*layer->out_size);
-    layer->Z = malloc(sizeof(double)*layer->out_size);
-    layer->dC_dA = malloc(sizeof(double)*layer->out_size);
-    layer->dA_dZ = malloc(sizeof(double)*layer->out_size);
+    layer->output = malloc(sizeof(double)*layer->out_size);
+    layer->delta = malloc(sizeof(double)*layer->out_size);
 
     // randomize weights and biases between 0 and 1
     for(int i = 0; i < layer->out_size; i++) {
@@ -121,16 +119,15 @@ void nn_forward(
             }
             
             z += layer->bias[i];
-            layer->Z[k] = z;
+            layer->output[k] = z;
         }
 
-
         // activate the layer output
-        cnet_act_fun act = cnet_get_act(layer->act_type);
-        act(layer->Z, layer->A, layer->out_size);
+        cnet_act_func *activate = cnet_get_act(layer->activation);
+        activate(layer->output, layer->out_size);
 
         // set input for next layer
-        in = layer->A;
+        in = layer->output;
     }
 }
 
@@ -152,7 +149,7 @@ void nn_backward(
     cnet const *nn,
     double *X,
     double *Y,
-    enum cnet_loss loss_type,
+    enum cnet_loss_type loss_type,
     double learning_rate
 ){
     // backpropagation
@@ -163,25 +160,17 @@ void nn_backward(
         struct clayer* next = l < (nn->n_layers - 1) ? nn->layers[l + 1] : NULL;
         struct clayer* previous = l > 0 ? nn->layers[l - 1] : NULL;
 
-        // activation derivative over the layer's delta
-        cnet_get_act_dx(layer->act_type)(
-            layer->Z,
-            layer->dA_dZ,
-            layer->out_size
-        );
-
-        // delta derivative over the weights
-        // this corresponds with the previous layer's output
-        double *dZ_dW = previous == NULL ? X : previous->A;
-
-        // cost derivative over the current output
+        // we start by computing the derivative of the loss
+        // over the current output and saving it in the layer's delta
         if (next == NULL) {
-            cnet_loss_fun loss_dx = cnet_get_loss_dx(loss_type);
+            // this is the output layer,
+            // we need to compute the loss over the network's output
+            cnet_loss_func_dx *loss_dx = cnet_get_loss_dx(loss_type);
             loss_dx(
-                layer->A,
+                layer->output,
                 Y,
-                layer->dC_dA,
-                nn->out_size
+                layer->delta,
+                layer->out_size
             );
         } else {
             // as this is an intermediate layer,
@@ -190,22 +179,32 @@ void nn_backward(
             // with the dependencies of these values for the current layer
             // activation output and weights.
             for(int j = 0; j < layer->out_size; j++) {
-                double dC_dA_k = 0;
+                double delta = 0;
                 for(int k = 0; k < next->out_size; k++) {
-                    dC_dA_k += next->dC_dA[k] * next->dA_dZ[j] * next->weights[k][j];
+                    // TODO: check if weights[k][j] or weights[j][k]
+                    delta += next->delta[k] * next->weights[k][j];
                 }
-                layer->dC_dA[j] = dC_dA_k;
+                layer->delta[j] = delta;
             }
         }
 
+
+        // update layers delta using the activation derivative
+        // over the sum of weights * input + bias
+        cnet_act_func_delta *act_delta = cnet_get_act_delta(layer->activation);
+        act_delta(
+            layer->output,
+            layer->delta,
+            layer->out_size
+        );
+
+
         // update the weights and biases
         for(int i = 0; i < layer->out_size; i++) {
-            double dC_dB = layer->dA_dZ[i] * layer->dC_dA[i];
-            layer->bias[i] += learning_rate * dC_dB;
-
+            layer->bias[i] += learning_rate * layer->delta[i];
+            double *in = previous == NULL ? X : previous->output;
             for(int j = 0; j < layer->in_size; j++) {
-                double dC_dW = dZ_dW[j] * dC_dB;
-                layer->weights[i][j] += learning_rate * dC_dW;
+                layer->weights[i][j] += learning_rate * layer->delta[i] * in[j];
             }
         }
     }
@@ -222,7 +221,7 @@ const double *nn_predict(
     nn_forward(nn, X);
 
     // return the output for the last layer
-    return nn->layers[nn->n_layers - 1]->A;
+    return nn->layers[nn->n_layers - 1]->output;
 }
 
 
@@ -236,8 +235,8 @@ void nn_train(
     double **Y_val,
     int train_size,
     int val_size,
-    enum cnet_loss loss_type,
-    enum cnet_metric metric_type,
+    enum cnet_loss_type loss_type,
+    enum cnet_metric_type metric_type,
     double learning_rate,
     int epochs,
     FILE *history_file
@@ -248,10 +247,13 @@ void nn_train(
     assert(nn->layers[0]->in_size == nn->in_size);
 
     // init history file
-    fprintf(history_file, "train_loss val_loss train_metric val_metric\n");
+    fprintf(history_file, "train_loss val_loss train_acc val_acc\n");
 
     // init temporary helper arrays
     int *idx_arr = cnet_idx(train_size);
+
+    // init functions
+    cnet_loss_func *loss = cnet_get_loss(loss_type);
 
     for(int epoch = 0; epoch < epochs; epoch++) {
         double train_loss = 0, val_loss = 0; 
@@ -269,12 +271,12 @@ void nn_train(
             double const *train_pred = nn_predict(nn, X_train[sample]);
 
             // compute training loss and metric
-            train_loss += cnet_loss_mean(
-                loss_type,
+            train_loss += loss(
                 train_pred,
                 Y_train[sample],
                 nn->out_size
             );
+
             train_metric += cnet_get_metric(metric_type)(
                 train_pred, 
                 Y_train[sample],
@@ -296,12 +298,12 @@ void nn_train(
             // pass the training sample through the net
             double const *val_pred = nn_predict(nn, X_val[s]);
 
-            val_loss += cnet_loss_mean(
-                loss_type,
+            val_loss += loss(
                 val_pred,
                 Y_val[s],
                 nn->out_size
             );
+
             val_metric += cnet_get_metric(metric_type)(
                 val_pred, 
                 Y_val[s],
@@ -313,16 +315,14 @@ void nn_train(
         printf(
             "[EPOCH %d/%d] "
             "- Train Loss: %lf "
-            "- Train %s: %lf "
+            "- Train Accuracy: %lf "
             "- Val Loss: %lf "
-            "- Val %s: %lf \n",
+            "- Val Accuracy: %lf \n",
             epoch,
             epochs,
             train_loss / train_size,
-            cnet_get_metric_name(metric_type),
             train_metric / train_size,
             val_loss / val_size,
-            cnet_get_metric_name(metric_type),
             val_metric / val_size
         );
 

@@ -11,10 +11,10 @@
 int main() {
     // hyperparameters
     double lr = 0.001;
-    double epochs = 50;
+    double epochs = 1500;
 
     // define dataset variables
-    int train_size = 600;
+    int train_size = 200;
     int val_size = 60;
 
     // define input / output
@@ -26,7 +26,7 @@ int main() {
     mnist_dataset *val_set = mnist_val_set(val_size);
 
     // init model
-    int n_layers = 5;
+    int n_layers = 4;
     cnet *nn = nn_init(
         input_size,
         output_size,
@@ -35,7 +35,6 @@ int main() {
         
     /// add layers
     nn_add(nn, input_size, 128,         act_sigmoid);
-    nn_add(nn, 128,        128,         act_sigmoid);
     nn_add(nn, 128,        64,          act_sigmoid);
     nn_add(nn, 64,         32,          act_sigmoid);
     nn_add(nn, 32,         output_size, act_softmax);
@@ -52,7 +51,7 @@ int main() {
         val_set->labels,
         train_set->size,
         val_set->size,
-        loss_mse,
+        loss_cross_entropy,
         metric_accuracy_argmax,
         lr,
         epochs,

@@ -4,8 +4,8 @@
 
 
 #include <math.h>
-#include "metrics.h"
-#include "helpers.h"
+#include "../include/metrics.h"
+#include "../include/helpers.h"
 
 
 double accuracy_round(
@@ -35,7 +35,7 @@ double accuracy_argmax(
 /// getters
 
 
-cnet_metric_fun cnet_get_metric(enum cnet_metric type) {
+cnet_metric_fun *cnet_get_metric(enum cnet_metric_type type) {
     switch(type) {
         case metric_accuracy_round: return accuracy_round;
         case metric_accuracy_argmax: return accuracy_argmax;
@@ -43,7 +43,7 @@ cnet_metric_fun cnet_get_metric(enum cnet_metric type) {
 }
 
 
-const char *cnet_get_metric_name(enum cnet_metric type) {
+const char *cnet_get_metric_name(enum cnet_metric_type type) {
     switch(type) {
         case metric_accuracy_round: return "Accuracy";
         case metric_accuracy_argmax: return "Accuracy";

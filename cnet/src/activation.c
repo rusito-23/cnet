@@ -1,122 +1,253 @@
-/**
- * Activation Functions for CNet.
- */
+/*****************************************************************************
+ *                               ACTIVATION
+ * Implementation of available activation functions and some helpers.
+ ****************************************************************************/
 
 #include <math.h>
-#include <float.h>
-#include "activation.h"
+#include <stdlib.h>
+#include "../include/activation.h"
+#include "../include/helpers.h"
 
 
 /// ReLU
 
 
-void relu(
-    double const *src,
-    double *dst,
+/**
+ * ReLU
+ * Rectified Linear Units.
+ *
+ * @param double *: Sum of weights * inputs + Bias
+ * @param int: Size
+ */
+void ReLU(
+    double *a,
     int size
 ){
-    for(int i = 0; i < size; i++) {
-        dst[i] = src[i] > 0 ? src[i] : 0;
-    }
+    for(int i = 0; i < size; i++)
+        a[i] = a[i] > 0 ? a[i] : 0;
 }
 
 
-void relu_dx(
-    double const *src,
-    double *dst,
+/**
+ * ReLU Derivative.
+ *
+ * @param double *: ReLU Output
+ * @param double *: destination array
+ * @param int: source and destination size
+ */
+void ReLU_Dx(
+    double *s,
+    double *a,
     int size
 ){
-    for(int i = 0; i < size; i++) {
-        dst[i] = src[i] >= 0 ? 1 : 0;
-    }
+    for(int i = 0; i < size; i++)
+        a[i] = s[i] >= 0 ? 1 : 0;
+}
+
+
+/**
+ * ReLU Delta Computation
+ *
+ * @param double *: Output
+ * @param double *: Previous delta
+ * @param int: Size
+ */
+void ReLU_Delta(
+    double *output,
+    double *delta,
+    int size
+){
+    // activation derivative
+    double *activation_dx = malloc(sizeof(double)*size);
+    ReLU_Dx(
+        output,
+        activation_dx,
+        size
+    );
+
+    // update delta
+    for(int i = 0; i < size; i++)
+        delta[i] *= activation_dx[i];
+
+    free(activation_dx);
 }
 
 
 /// Sigmoid
 
 
-void sigmoid(
-    double const *src,
-    double *dst,
+/**
+ * Sigmoid
+ *
+ * @param double *: Sum of weights * inputs + Bias
+ * @param int: Size
+ */
+void Sigmoid(
+    double *a,
     int size
 ){
-    for(int i = 0; i < size; i++) {
-        dst[i] = 1/(1 + expf(-src[i]));
-    }
+    for(int i = 0; i < size; i++)
+        a[i] = 1/(1 - expf(-a[i]));
 }
 
 
-void sigmoid_dx(
-    double const *src,
-    double *dst,
+/**
+ * Sigmoid Derivative
+ *
+ * @param double *s: Sigmoid output
+ * @param double *a: Destination array
+ * @param int size: Source and Destination size
+ */
+void Sigmoid_Dx(
+    double *s,
+    double *a,
     int size
 ){
-    for(int i = 0; i < size; i++) {
-        double sig = 1/(1 + expf(-src[i]));
-        dst[i] = sig * (1 - sig);
-    }
+    for(int i = 0; i < size; i++)
+        a[i] = s[i] * (1 - s[i]);
+}
+
+
+/**
+ * Sigmoid Delta Computation
+ *
+ * @param double *: Output
+ * @param double *: Previous delta
+ * @param int: Size
+ */
+void Sigmoid_Delta(
+    double *output,
+    double *delta,
+    int size
+){
+    // activation derivative
+    double *activation_dx = malloc(sizeof(double)*size);
+    Sigmoid_Dx(
+        output,
+        activation_dx,
+        size
+    );
+
+    // update delta
+    for(int i = 0; i < size; i++)
+        delta[i] *= activation_dx[i];
+
+    free(activation_dx);
 }
 
 
 /// SoftMax
 
 
-void softmax(
-    double const *src,
-    double *dst,
+/**
+ * SoftMax
+ *
+ * @param double *: Sum of weights * inputs + Bias
+ * @param int: Size
+ */
+void SoftMax(
+    double *a,
     int size
 ){
-    double denom = 0;
-    for(int i = 0; i < size; i++) {
-        denom += expf(src[i]);
-    }
+    // sum of exp(z)
+    double sum = 0;
+    for(int i = 0; i < size; i++)
+        sum += expf(a[i]);
 
-    for(int i = 0; i < size; i++) {
-        dst[i] = expf(src[i]) / denom;
-    }
+    // populate the destination array
+    for(int i = 0; i < size; i++)
+        a[i] = expf(a[i]) / sum;
 }
 
 
-void softmax_dx(
-    double const *src,
-    double *dst,
+/**
+ * SoftMax Derivative
+ *
+ * This is particular derivative, since it fills a matrix instead
+ * of a vector. This matrix will be nxn, n being the activation output length.
+ * Don't panic about the Jacobian Matrix, since it will be dot-multiplied 
+ * by the cost derivative (vector of size n), resulting in an n-sized vector.
+ *
+ * @param double *s: The output vector of the softmax function
+ * @param double **d: Destination Matrix
+ * @param int size: Input Z size (Jacobian Matrix size being: size x size)
+ */
+void SoftMax_Dx(
+    double *s,
+    double **d,
     int size
 ){
-    double denom = 0;
     for(int i = 0; i < size; i++) {
-        denom += expf(src[i]);
-    }
-
-    for(int i = 0; i < size; i++) {
-        double comm = -expf(src[i])/pow(denom, 2);
-        double factor = 0;
-
-        for(int j = 0; i < size && i != j; j++) {
-            factor += expf(src[j]);
+        for(int j = 0; j < size; j++) {
+            if (i == j) {
+                d[i][j] = s[i] * (1 - s[i]);
+            } else {
+                d[i][j] = -s[i] * s[i];
+            }
         }
-
-        dst[i] = comm*factor;
-    }
-
-}
-
-
-/// Activations getters
-
-
-cnet_act_fun cnet_get_act(enum cnet_act type) {
-    switch(type) {
-        case act_relu: return relu;
-        case act_sigmoid: return sigmoid;
-        case act_softmax: return softmax;
     }
 }
 
 
-cnet_act_fun cnet_get_act_dx(enum cnet_act type) {
+/**
+ * SoftMax Delta Computation.
+ *
+ * This activation function results in a particular delta computation,
+ * since we need to use a Jacobian matrix and perform a dot product 
+ * with the previous delta value, which is a vector.
+ *
+ * @param double *: SoftMax Output 
+ * @param double *: Previous Delta
+ * @param int: Size
+ */
+void SoftMax_Delta(
+    double *output,
+    double *delta,
+    int size
+){
+    // create the jacobian matrix to be used for the softmax derivative
+    double **activation_dx = malloc(sizeof(double*) * size);
+    for(int i = 0;  i < size; i++)
+        activation_dx[i] = malloc(sizeof(double) * size);
+
+    // softmax derivative
+    SoftMax_Dx(
+        output,
+        activation_dx,
+        size
+    );
+
+    // perform the dot product between the jacobian matrix
+    // and the previous delta
+    cnet_dot_mat(
+        delta,
+        activation_dx,
+        size
+    );
+
+    for(int i = 0;  i < size; i++)
+        free(activation_dx[i]);
+    free(activation_dx);
+}
+
+
+
+/// Helpers
+
+
+cnet_act_func *cnet_get_act(enum cnet_act_type type) {
     switch(type) {
-        case act_relu: return relu_dx;
-        case act_sigmoid: return sigmoid_dx;
-        case act_softmax: return softmax_dx;
+        case relu_act: return ReLU;
+        case sigmoid_act: return Sigmoid;
+        case softmax_act: return SoftMax;
+    }
+}
+
+
+cnet_act_func_delta *cnet_get_act_delta(enum cnet_act_type type) {
+    switch(type) {
+        case relu_act: return ReLU_Delta;
+        case sigmoid_act: return Sigmoid_Delta;
+        case softmax_act: return SoftMax_Delta;
     }
 }

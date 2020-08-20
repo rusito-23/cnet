@@ -1,55 +1,71 @@
-/**
- * Activation Functions for CNet.
- */
+/*****************************************************************************
+ *                               ACTIVATION
+ * Available activation functions and some helpers.
+ ****************************************************************************/
 
 #ifndef CNET_ACTIVATION_H
 #define CNET_ACTIVATION_H
 
 
-/* Available Types */
-
-enum cnet_act {
-    act_relu,
-    act_softmax,
-    act_sigmoid
+enum cnet_act_type {
+    relu_act,                   // Rectified Linear Units
+    sigmoid_act,                // Sigmoid
+    softmax_act                 // Softmax
 };
 
 
 /**
- * Activation Function.
+ * Activation Function
  *
- * Performs a non-linear activation over an array of doubles.
- * Stores the result in the given destination array.
- * Both arrays should have the same size.
+ * These functions will be in charge of performing in-place activation
+ * for the sum of weights * inputs in a layer.
  *
- * @param const double *src: Source array
- * @param double *dst: Destination array
- * @param int size: Source/Destination size.
+ * @param double *: Sum of weights * inputs + Bias
+ * @param int: Size
  */
-typedef void (*cnet_act_fun)(
-    double const *src,
-    double *dst, 
-    int size
+typedef void cnet_act_func(double *, int); 
+
+
+/**
+ * Activation Function Delta Computation.
+ *
+ * This funcions will be in charge of computing the layer's delta.
+ * It will take as parameters the pointer to the array containing 
+ * the delta computed using the derivative of the cost function.
+ *
+ * @param double*: Output
+ * @param double*: Delta
+ * @param int: Size
+ */
+typedef void cnet_act_func_delta(
+    double *,
+    double *,
+    int
 );
 
 
 /**
- * Get activation function.
- * Given an activation type, returns a pointer to the activation function.
+ * Get activation function by type 
  *
- * @param enum cnet_act_type: Activation Type
+ * Returns a pointer to the activation function implementation,
+ * for the given type.
+ *
+ * @param enum cnet_act_type: Activation type
+ * @return cnet_act_func*
  */
-cnet_act_fun cnet_get_act(enum cnet_act type);
+cnet_act_func *cnet_get_act(enum cnet_act_type type);
 
 
 /**
- * Get activation function derivative.
- * Given an activation type,
- * returns a pointer to the activation function derivative.
+ * Get activation delta computation function by type
  *
- * @param enum cnet_act_type: Activation Type
+ * Returns a pointer to the activation function
+ * delta computation implementation.
+ *
+ * @param enum cnet_act_type: Activation type
+ * @return cnet_act_func_delta*
  */
-cnet_act_fun cnet_get_act_dx(enum cnet_act type);
+cnet_act_func_delta *cnet_get_act_delta(enum cnet_act_type type);
 
 
 #endif /* CNET_ACTIVATION_H */

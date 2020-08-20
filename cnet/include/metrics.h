@@ -8,7 +8,7 @@
 
 /* Available Types */
 
-enum cnet_metric {
+enum cnet_metric_type {
     metric_accuracy_round,
     metric_accuracy_argmax
 };
@@ -24,7 +24,7 @@ enum cnet_metric {
  * @param const double *real: Expected array
  * @param int size: Predictions/Expected size.
  */
-typedef double (*cnet_metric_fun)(
+typedef double cnet_metric_fun(
     double const *pred,
     double const *real,
     int size
@@ -37,7 +37,7 @@ typedef double (*cnet_metric_fun)(
  *
  * @param enum cnet_metric_type: Metric Type
  */
-cnet_metric_fun cnet_get_metric(enum cnet_metric type);
+cnet_metric_fun *cnet_get_metric(enum cnet_metric_type type);
 
 
 /**
@@ -45,8 +45,7 @@ cnet_metric_fun cnet_get_metric(enum cnet_metric type);
  *
  * @param enum cnet_metric_type: Metric Type
  */
-const char* cnet_get_metric_name(enum cnet_metric type);
+const char* cnet_get_metric_name(enum cnet_metric_type type);
 
 
 #endif /* CNET_METRICS_H */
-

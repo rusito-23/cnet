@@ -1,73 +1,75 @@
-/**
- * Loss Functions for CNet.
- */
+/*****************************************************************************
+ *                                  LOSS
+ * Defines the available loss functions and some helpers to work with.
+ ****************************************************************************/
 
 #ifndef CNET_LOSS_H
 #define CNET_LOSS_H
 
 
-/* Available Types */
-
-enum cnet_loss {
-    loss_mse
+enum cnet_loss_type {
+    mse_loss,                   // Mean Squared Error
+    cross_entropy_loss          // Cross Entropy Loss
 };
 
 
 /**
- * Loss function.
+ * Loss function
  *
- * Searchs the cost of a predicted output over the expected values.
- * Stores the result in the given destination array.
- * Both arrays should have the same size.
+ * The loss function will return a number, since it will not be used 
+ * to train the model, but for visualization purposes only.
  *
- * @param const double *pred: Predictions array
- * @param const double *real: Expected array
- * @param double *dst: Destination array
- * @param int size: Predictions/Expected/Destination size.
+ * @param double *: Prediction
+ * @param double *: Target
+ * @param int : size
+ * @return double
  */
-typedef void (*cnet_loss_fun)(
-    double const *pred,
-    double const *real,
-    double *dst,
-    int size
+typedef double cnet_loss_func(
+    double const *,
+    double const *,
+    int
 );
 
 
 /**
- * Get loss function
- * Given a loss type, returns a pointer to the loss function.
+ * Loss function derivative.
  *
- * @param enum cnet_loss_type: Loss Type
- */
-cnet_loss_fun cnet_get_loss(enum cnet_loss type);
-
-
-/**
- * Get loss function derivative.
- * Given a loss type, returns a pointer to the loss function derivative.
+ * The loss function derivative will compute the derivative for each
+ * of the predictions and will populate the given array with these values.
+ * This will be used to compute the layer's delta, which then allow us
+ * to update the weights.
  *
- * @param enum cnet_loss_type: Loss Type
+ * @param double *: Prediction
+ * @param double *: Target
+ * @param double *: Destination array
+ * @param int: Size of the given arrays
  */
-cnet_loss_fun cnet_get_loss_dx(enum cnet_loss type);
-
-
-/**
- * Calculate loss mean for given arrays.
- * Uses the loss for each of the elements in the given arrays
- * (should have the same size), and returns the mean loss between these
- * arrays.
- *
- * @param enum cnet_loss_type type: Loss Type
- * @param double *pred: Predicted values
- * @param double *real: Expected values
- * @param int size: Size of pred and real
- */
-double cnet_loss_mean(
-    enum cnet_loss type,
-    double const *pred,
-    double const *real,
-    int size
+typedef void cnet_loss_func_dx(
+    double const *,
+    double const *,
+    double *,
+    int
 );
+
+
+/**
+ * Get Loss
+ * Returns the loss function pointer, dependending on the loss type.
+ *
+ * @param cnet_loss_type
+ * @return cnet_loss_func
+ */
+cnet_loss_func *cnet_get_loss(enum cnet_loss_type type);
+
+
+/**
+ * Get Loss Derivative
+ * Returns the loss function derivative pointer, dependending on the loss type.
+ *
+ * @param cnet_loss_type
+ * @return cnet_loss_func_dx
+ */
+cnet_loss_func_dx *cnet_get_loss_dx(enum cnet_loss_type type);
 
 
 #endif /* CNET_LOSS_H */

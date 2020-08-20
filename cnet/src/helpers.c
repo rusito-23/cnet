@@ -3,7 +3,7 @@
  */
 
 #include <stdlib.h>
-#include "helpers.h"
+#include "../include/helpers.h"
 
 
 /// Array Helpers
@@ -62,4 +62,39 @@ double cnet_argmax(double const *arr, int size) {
         }
     }
     return max_idx;
+}
+
+
+/**
+ * Vector Dot Product */
+double cnet_dot_vector(
+    double const *x,
+    double const *y,
+    int size
+){
+    double res = 0;
+    for(int i = 0; i < size; i++)
+        res += x[i] * y[i];
+    return res;
+}
+
+
+/**
+ * Vector Matrix Dot Product */
+void cnet_dot_mat(
+    double *vector,
+    double **matrix,
+    int size
+){
+    // create the temporary vector to store the result
+    double *temp = malloc(sizeof(double) * size);
+
+    // compute the dot product
+    for(int i = 0; i < size; i++)
+        temp[i] = cnet_dot_vector(vector, matrix[i], size);
+
+    // store the result and free
+    for(int i = 0; i < size; i++)
+        vector[i] = temp[i];
+    free(temp);
 }

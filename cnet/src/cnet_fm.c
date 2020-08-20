@@ -25,7 +25,7 @@ void nn_save(
             "%d %d %d \n",
             layer->in_size,
             layer->out_size,
-            layer->act_type
+            layer->activation
         );
 
         // save every layer biases
@@ -60,7 +60,7 @@ cnet *nn_load(
     for(int i = 0; i < nn->n_layers; i++) {
         // load layer info
         int in_size, out_size;
-        enum cnet_act act_type;
+        enum cnet_act_type act_type;
         fscanf(
             in,
             "%d %d %d \n",

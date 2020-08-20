@@ -34,10 +34,10 @@ int main() {
     );
         
     /// add layers
-    nn_add(nn, input_size, 128,         act_sigmoid);
-    nn_add(nn, 128,        64,          act_sigmoid);
-    nn_add(nn, 64,         32,          act_sigmoid);
-    nn_add(nn, 32,         output_size, act_softmax);
+    nn_add(nn, input_size, 128,         sigmoid_act);
+    nn_add(nn, 128,        64,          sigmoid_act);
+    nn_add(nn, 64,         32,          sigmoid_act);
+    nn_add(nn, 32,         output_size, softmax_act);
 
     // create a file to save output
     FILE *history_file = fopen(HISTORY_FILE_PATH, "w");
@@ -51,7 +51,7 @@ int main() {
         val_set->labels,
         train_set->size,
         val_set->size,
-        loss_cross_entropy,
+        cross_entropy_loss,
         metric_accuracy_argmax,
         lr,
         epochs,

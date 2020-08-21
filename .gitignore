@@ -88,3 +88,4 @@ Temporary Items
 
 /bin
 /test/*.dat
+mnist/out/

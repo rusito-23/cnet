@@ -162,7 +162,7 @@ void nn_backward(
 
         // we start by computing the derivative of the loss
         // over the current output and saving it in the layer's delta
-        if (next == NULL) {
+        if (!next) {
             // this is the output layer,
             // we need to compute the loss over the network's output
             cnet_loss_func_dx *loss_dx = cnet_get_loss_dx(loss_type);
@@ -181,13 +181,11 @@ void nn_backward(
             for(int j = 0; j < layer->out_size; j++) {
                 double delta = 0;
                 for(int k = 0; k < next->out_size; k++) {
-                    // TODO: check if weights[k][j] or weights[j][k]
                     delta += next->delta[k] * next->weights[k][j];
                 }
                 layer->delta[j] = delta;
             }
         }
-
 
         // update layers delta using the activation derivative
         // over the sum of weights * input + bias
@@ -198,13 +196,19 @@ void nn_backward(
             layer->out_size
         );
 
+        // layer's input: the Z derivative over the weights
+        double *input = !previous ? X : previous->output;
 
-        // update the weights and biases
+        // update trainable parameters
         for(int i = 0; i < layer->out_size; i++) {
-            layer->bias[i] += learning_rate * layer->delta[i];
-            double *in = previous == NULL ? X : previous->output;
+            double update = learning_rate * layer->delta[i];
+
+            // update bias
+            layer->bias[i] += update;
+
+            // update weights
             for(int j = 0; j < layer->in_size; j++) {
-                layer->weights[i][j] += learning_rate * layer->delta[i] * in[j];
+                layer->weights[i][j] += update * input[j];
             }
         }
     }

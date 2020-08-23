@@ -5,6 +5,7 @@
  */
 
 #include <assert.h>
+#include <math.h>
 #include <stdlib.h>
 #include "../include/cnet.h"
 #include "../include/loss.h"
@@ -114,11 +115,10 @@ void nn_forward(
         for(int k = 0; k < layer->out_size; k++) {
             // compute z for neuron
             double z = 0;
-            for(int j = 0; j < layer->in_size; j++) {
+            for(int j = 0; j < layer->in_size; j++)
                 z += layer->weights[k][j] * in[j];
-            }
             
-            z += layer->bias[i];
+            z += layer->bias[k];
             layer->output[k] = z;
         }
 
@@ -152,8 +152,6 @@ void nn_backward(
     enum cnet_loss_type loss_type,
     double learning_rate
 ){
-    // backpropagation
-
     for(int l = nn->n_layers; l-->0;) {
 
         struct clayer* layer = nn->layers[l];
@@ -173,21 +171,20 @@ void nn_backward(
                 layer->out_size
             );
         } else {
-            // as this is an intermediate layer,
             // we need to compute the derivative of the cost over the current
-            // activation output using the previously computed dC_dA, along
+            // activation output using the previously computed delta, along
             // with the dependencies of these values for the current layer
             // activation output and weights.
-            for(int j = 0; j < layer->out_size; j++) {
+            for(int k = 0; k < layer->out_size; k++) {
                 double delta = 0;
-                for(int k = 0; k < next->out_size; k++) {
-                    delta += next->delta[k] * next->weights[k][j];
-                }
-                layer->delta[j] = delta;
+                for(int j = 0; j < next->out_size; j++)
+                    delta += next->delta[j] * next->weights[j][k];
+
+                layer->delta[k] = delta;
             }
         }
 
-        // update layers delta using the activation derivative
+        // update delta using the activation derivative
         // over the sum of weights * input + bias
         cnet_act_func_delta *act_delta = cnet_get_act_delta(layer->activation);
         act_delta(
@@ -200,16 +197,15 @@ void nn_backward(
         double *input = !previous ? X : previous->output;
 
         // update trainable parameters
-        for(int i = 0; i < layer->out_size; i++) {
-            double update = learning_rate * layer->delta[i];
+        for(int k = 0; k < layer->out_size; k++) {
+            double update = learning_rate * layer->delta[k];
 
             // update bias
-            layer->bias[i] += update;
+            layer->bias[k] += update;
 
             // update weights
-            for(int j = 0; j < layer->in_size; j++) {
-                layer->weights[i][j] += update * input[j];
-            }
+            for(int j = 0; j < layer->in_size; j++)
+                layer->weights[k][j] += update * input[j];
         }
     }
 }

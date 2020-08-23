@@ -4,7 +4,11 @@
  ****************************************************************************/
 
 #include <math.h>
+#include <float.h>
 #include "../include/loss.h"
+
+
+#define non_zero(x) x + 0.00000001
 
 
 /// Mean Squared Error
@@ -66,8 +70,10 @@ double CrossEntropy(
     int size
 ){
     double ce = 0;
+
     for(int i = 0; i < size; i++)
-        ce += -target[i] * log(pred[i]) - (1 - target[i]) * log(1 - pred[i]);
+        ce -= target[i] * log(non_zero(pred[i]));
+
     return ce;
 }
 
@@ -86,9 +92,8 @@ void CrossEntropy_Dx(
     double *dst,
     int size
 ){
-    // TODO: is this right?
     for(int i = 0; i < size; i++)
-        dst[i] = pred[i] - target[i];
+        dst[i] = - target[i] / non_zero(pred[i]);
 }
 
 

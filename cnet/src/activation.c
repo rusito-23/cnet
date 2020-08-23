@@ -24,7 +24,7 @@ void ReLU(
     int size
 ){
     for(int i = 0; i < size; i++)
-        a[i] = a[i] > 0 ? a[i] : 0;
+        a[i] = a[i] > 0 ? (a[i] > 1 ? 1: a[i]) : 0;
 }
 
 
@@ -149,14 +149,19 @@ void SoftMax(
     double *a,
     int size
 ){
-    // sum of exp(z)
+    // get max z
+    double max = a[0];
+    for(int i = 0; i < size; i++)
+        max = max < a[i] ? a[i] : max;
+
+    // sum of exp(z - max)
     double sum = 0;
     for(int i = 0; i < size; i++)
-        sum += expf(a[i]);
+        sum += expf(a[i] - max);
 
     // populate the destination array
     for(int i = 0; i < size; i++)
-        a[i] = expf(a[i]) / sum;
+        a[i] = expf(a[i] - max) / sum;
 }
 
 

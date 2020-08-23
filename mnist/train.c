@@ -11,11 +11,11 @@
 int main() {
     // hyperparameters
     double lr = 0.001;
-    double epochs = 1500;
+    double epochs = 500;
 
     // define dataset variables
-    int train_size = 200;
-    int val_size = 60;
+    int train_size = TRAIN_SIZE;
+    int val_size = VAL_SIZE;
 
     // define input / output
     int output_size = OUTPUT_SIZE;
@@ -32,12 +32,12 @@ int main() {
         output_size,
         n_layers
     );
-        
+
     /// add layers
-    nn_add(nn, input_size, 128,         sigmoid_act);
-    nn_add(nn, 128,        64,          sigmoid_act);
-    nn_add(nn, 64,         32,          sigmoid_act);
-    nn_add(nn, 32,         output_size, softmax_act);
+    nn_add(nn,  input_size,     1024,           relu_act);
+    nn_add(nn,  1024,           1024,           relu_act);
+    nn_add(nn,  1024,           512,            relu_act);
+    nn_add(nn,  512,            output_size,    softmax_act);
 
     // create a file to save output
     FILE *history_file = fopen(HISTORY_FILE_PATH, "w");

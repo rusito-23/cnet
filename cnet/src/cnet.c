@@ -13,6 +13,7 @@
 #include "../include/helpers.h"
 #include "../include/metrics.h"
 
+#define INITIAL_WEIGHT 0
 
 /**
  * Create CNet. */
@@ -78,10 +79,10 @@ void nn_add(
 
     // randomize weights and biases between 0 and 1
     for(int i = 0; i < layer->out_size; i++) {
-        layer->bias[i] = ((double)rand())/((double)RAND_MAX);
+        layer->bias[i] = INITIAL_WEIGHT;
         layer->weights[i] = malloc(sizeof(double)*layer->in_size);
         for(int j = 0; j < layer->in_size; j++) {
-            layer->weights[i][j] = ((double)rand())/((double)RAND_MAX);
+            layer->weights[i][j] = INITIAL_WEIGHT;
         }
     }
 
@@ -192,6 +193,9 @@ void nn_backward(
             layer->delta,
             layer->out_size
         );
+
+        // gradient clipping: constraint the delta values
+        cnet_clip(layer->delta, layer->out_size);
 
         // layer's input: the Z derivative over the weights
         double *input = !previous ? X : previous->output;

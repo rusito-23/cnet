@@ -3,6 +3,7 @@
  */
 
 #include <stdlib.h>
+#include <math.h>
 #include "../include/helpers.h"
 
 
@@ -97,4 +98,22 @@ void cnet_dot_mat(
     for(int i = 0; i < size; i++)
         vector[i] = temp[i];
     free(temp);
+}
+
+
+/**
+ * Vector Clipping */
+void cnet_clip(
+    double *vector,
+    int size
+){
+    // compute the norm
+    double norm = 0;
+    for(int i = 0; i < size; i++)
+        norm += pow(vector[i], 2); 
+    norm = sqrt(norm);
+
+    // clip the given vector using the norm
+    for(int i = 0; i < size; i++)
+        vector[i] = vector[i] / norm;
 }

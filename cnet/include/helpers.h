@@ -98,5 +98,18 @@ void cnet_dot_mat(
 );
 
 
+/**
+ * Clipping
+ *
+ * Normalize the values of a given array using the vector norm.
+ *
+ * @param double *: Vector
+ * @param int: Vector size
+ */
+void cnet_clip(
+    double *vector,
+    int size
+);
+
 
 #endif /* CNET_HELPERS_H */

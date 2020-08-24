@@ -14,8 +14,8 @@ int main() {
     double epochs = 500;
 
     // define dataset variables
-    int train_size = TRAIN_SIZE;
-    int val_size = VAL_SIZE;
+    int train_size = 100;
+    int val_size = 30;
 
     // define input / output
     int output_size = OUTPUT_SIZE;
@@ -26,7 +26,7 @@ int main() {
     mnist_dataset *val_set = mnist_val_set(val_size);
 
     // init model
-    int n_layers = 4;
+    int n_layers = 3;
     cnet *nn = nn_init(
         input_size,
         output_size,
@@ -35,7 +35,6 @@ int main() {
 
     /// add layers
     nn_add(nn,  input_size,     1024,           relu_act);
-    nn_add(nn,  1024,           1024,           relu_act);
     nn_add(nn,  1024,           512,            relu_act);
     nn_add(nn,  512,            output_size,    softmax_act);
 

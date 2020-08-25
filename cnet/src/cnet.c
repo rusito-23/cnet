@@ -13,7 +13,8 @@
 #include "../include/helpers.h"
 #include "../include/metrics.h"
 
-#define INITIAL_WEIGHT 0
+#define INIT_BIAS 0
+#define INIT_WEIGHT ((double)rand() / (RAND_MAX + 1)) - 0.5
 
 /**
  * Create CNet. */
@@ -79,10 +80,10 @@ void nn_add(
 
     // randomize weights and biases between 0 and 1
     for(int i = 0; i < layer->out_size; i++) {
-        layer->bias[i] = INITIAL_WEIGHT;
+        layer->bias[i] = INIT_BIAS;
         layer->weights[i] = malloc(sizeof(double)*layer->in_size);
         for(int j = 0; j < layer->in_size; j++) {
-            layer->weights[i][j] = INITIAL_WEIGHT;
+            layer->weights[i][j] = INIT_WEIGHT;
         }
     }
 
@@ -205,7 +206,7 @@ void nn_backward(
             double update = learning_rate * layer->delta[k];
 
             // update bias
-            layer->bias[k] += update;
+            layer->bias[k] -= update;
 
             // update weights
             for(int j = 0; j < layer->in_size; j++)

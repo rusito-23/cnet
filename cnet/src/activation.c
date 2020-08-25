@@ -5,6 +5,7 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "../include/activation.h"
 #include "../include/helpers.h"
 
@@ -24,7 +25,7 @@ void ReLU(
     int size
 ){
     for(int i = 0; i < size; i++)
-        a[i] = a[i] > 0 ? (a[i] > 1 ? 1: a[i]) : 0;
+        a[i] = a[i] > 0 ? a[i] : 0;
 }
 
 

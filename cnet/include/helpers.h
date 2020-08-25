@@ -7,6 +7,10 @@
 #ifndef CNET_HELPERS_H
 #define CNET_HELPERS_H
 
+
+#define non_zero(x) (x + 0.00000000000001)
+
+
 /// Array helpers
 
 

@@ -6,9 +6,7 @@
 #include <math.h>
 #include <float.h>
 #include "../include/loss.h"
-
-
-#define non_zero(x) x + 0.00000001
+#include "../include/helpers.h"
 
 
 /// Mean Squared Error

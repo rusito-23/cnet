@@ -23,7 +23,7 @@
 
 #define INPUT_SIZE      784     // 28px*28px
 #define OUTPUT_SIZE     10      // 10 digits
-#define TRAIN_SIZE      60000   // training samples     
+#define TRAIN_SIZE      60000   // training samples
 #define VAL_SIZE        10000   // validation samples
 #define INFO_IM_LEN     4       // number of information bytes in train file
 #define INFO_LABEL_LEN  2       // number of information bytes in val file

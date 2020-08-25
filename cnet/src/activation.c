@@ -88,7 +88,7 @@ void Sigmoid(
     int size
 ){
     for(int i = 0; i < size; i++)
-        a[i] = 1/(1 - expf(-a[i]));
+        a[i] = 1/(1 + expf(-a[i]));
 }
 
 
@@ -206,34 +206,14 @@ void SoftMax_Dx(
  * @param double *: Previous Delta
  * @param int: Size
  */
+#pragma clang diagnostic ignored "-Wunused-parameter"
 void SoftMax_Delta(
     double *output,
     double *delta,
     int size
 ){
-    // create the jacobian matrix to be used for the softmax derivative
-    double **activation_dx = malloc(sizeof(double*) * size);
-    for(int i = 0;  i < size; i++)
-        activation_dx[i] = malloc(sizeof(double) * size);
-
-    // softmax derivative
-    SoftMax_Dx(
-        output,
-        activation_dx,
-        size
-    );
-
-    // perform the dot product between the jacobian matrix
-    // and the previous delta
-    cnet_dot_mat(
-        delta,
-        activation_dx,
-        size
-    );
-
-    for(int i = 0;  i < size; i++)
-        free(activation_dx[i]);
-    free(activation_dx);
+    // we don't do anything here, as the derivative is
+    // already handled in the derivative of the cross entropy loss
 }
 
 

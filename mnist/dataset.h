@@ -52,6 +52,10 @@ void mnist_read_data_image_file(
         read(file, &image_data, INPUT_SIZE * sizeof(unsigned char));
         for(int j = 0; j < INPUT_SIZE; j++) {
             data[i][j] = (double)image_data[j] / 255.0;
+            assert(
+                data[i][j] >= 0 &&
+                data[i][j] <= 1
+            );
         }
     }
 }

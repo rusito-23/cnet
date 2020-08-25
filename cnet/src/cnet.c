@@ -15,7 +15,7 @@
 #include "../include/log.h"
 
 #define INIT_BIAS 0
-#define INIT_WEIGHT ((double)rand() / (RAND_MAX + 1)) - 0.5
+#define INIT_WEIGHT ((double)rand() / (RAND_MAX)) - 0.5
 
 /**
  * Create CNet. */
@@ -83,9 +83,8 @@ void nn_add(
     for(int i = 0; i < layer->out_size; i++) {
         layer->bias[i] = INIT_BIAS;
         layer->weights[i] = malloc(sizeof(double)*layer->in_size);
-        for(int j = 0; j < layer->in_size; j++) {
+        for(int j = 0; j < layer->in_size; j++)
             layer->weights[i][j] = INIT_WEIGHT;
-        }
     }
 
     // add layer to the net
@@ -197,7 +196,7 @@ void nn_backward(
         );
 
         // gradient clipping: constraint the delta values
-        cnet_clip(layer->delta, layer->out_size);
+        // cnet_clip(layer->delta, layer->out_size);
 
         // layer's input: the Z derivative over the weights
         double *input = !previous ? X : previous->output;
@@ -211,7 +210,7 @@ void nn_backward(
 
             // update weights
             for(int j = 0; j < layer->in_size; j++)
-                layer->weights[k][j] += update * input[j];
+                layer->weights[k][j] -= update * input[j];
         }
     }
 }
@@ -323,7 +322,7 @@ void nn_train(
             "- Train Loss: %lf "
             "- Train Accuracy: %lf "
             "- Val Loss: %lf "
-            "- Val Accuracy: %lf \n",
+            "- Val Accuracy: %lf",
             epoch,
             epochs,
             train_loss / train_size,

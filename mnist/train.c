@@ -14,8 +14,8 @@ int main() {
     double epochs = 512;
 
     // define dataset variables
-    int train_size = 5;
-    int val_size = 0;
+    int train_size = TRAIN_SIZE;
+    int val_size = VAL_SIZE;
 
     // define input / output
     int output_size = OUTPUT_SIZE;

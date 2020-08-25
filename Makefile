@@ -5,7 +5,7 @@
 
 
 CC := gcc
-CFLAGS := -Wall -Werror -Wextra -pedantic
+CFLAGS := -Wall -Werror -Wextra -pedantic -std=c11
 AR := ar
 RM := rm -rf
 

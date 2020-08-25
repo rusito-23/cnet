@@ -91,7 +91,7 @@ void CrossEntropy_Dx(
     int size
 ){
     for(int i = 0; i < size; i++)
-        dst[i] = - target[i] / non_zero(pred[i]);
+        dst[i] = (pred[i] - target[i]);
 }
 
 

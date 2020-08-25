@@ -10,12 +10,12 @@
 
 int main() {
     // hyperparameters
-    double lr = 0.001;
-    double epochs = 50;
+    double lr = 1e-3;
+    double epochs = 512;
 
     // define dataset variables
-    int train_size = TRAIN_SIZE;
-    int val_size = VAL_SIZE;
+    int train_size = 5;
+    int val_size = 0;
 
     // define input / output
     int output_size = OUTPUT_SIZE;
@@ -34,9 +34,9 @@ int main() {
     );
 
     /// add layers
-    nn_add(nn,  input_size,     256,            relu_act);
-    nn_add(nn,  256,            128,            relu_act);
-    nn_add(nn,  128,            output_size,    softmax_act);
+    nn_add(nn,  input_size,     256,            sigmoid_act);
+    nn_add(nn,  256,            128,            sigmoid_act);
+    nn_add(nn,  128,            output_size,    sigmoid_act);
 
     // create a file to save output
     FILE *history_file = fopen(HISTORY_FILE_PATH, "w");
@@ -50,7 +50,7 @@ int main() {
         val_set->labels,
         train_set->size,
         val_set->size,
-        cross_entropy_loss,
+        mse_loss,
         metric_accuracy_argmax,
         lr,
         epochs,

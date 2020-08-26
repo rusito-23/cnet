@@ -9,14 +9,19 @@ This is not a serious project, nor it will be mantained. The objective was to un
 
 ## MNIST
 
-The [mnist folder](./mnist) contains code to test the cnet library over the [mnist dataset](http://yann.lecun.com/exdb/mnist/). It contains two main scripts: *train* and *predict*. The *train* file contains code to train the model, the output is be saved into [the mnist out folder.](./mnist/out), including the saved model and the history file (containing loss and accuracy). The *predict* file contains code to test the saved model over the test-set and creating a classification report and a confusion matrix, that can be visualized using the [gnuplot script](./plots/confusion_matrix.plt).
+The [mnist folder](./mnist) contains code to test the cnet library over the [mnist dataset](http://yann.lecun.com/exdb/mnist/). It contains two main scripts: *train* and *predict*. The *train* file contains code to train the model, the output is be saved into [the mnist out folder.](./mnist/out), including the saved model and the history file (containing loss and accuracy). The *predict* file contains code to test the saved model over the test-set and creating a confusion matrix, that can be visualized using the [gnuplot script](./plots/confusion_matrix.plt).
 
-Currently, the model can reach *0.91* accuracy over the mnist test-set within 60 epochs (I haven't tried using more epochs yet).
-These are the loss and accuracy for the previously mentioned scenario:
+Currently, the model reaches **0.91** accuracy over the mnist test-set within 60 epochs (I haven't tried using more epochs yet).
+
+### MNIST HISTORY
 
 | accuracy | loss |
 | --- | --- |
-| ![mnist_metrics](./mnist/out/mnist_metrics.png) | ![mnist_losses](./mnist/out/mnist_losses.png) |
+| ![mnist_metrics](./mnist_examples/mnist_metrics.png) | ![mnist_losses](./mnist_examples/mnist_losses.png) |
+
+### MNIST CONFUSION MATRIX
+
+![mnist_conf](./mnist_examples/mnist_conf_matrix.png)
 
 ## BUILD
 

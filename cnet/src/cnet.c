@@ -12,7 +12,6 @@
 #include "../include/activation.h"
 #include "../include/helpers.h"
 #include "../include/metrics.h"
-#include "../include/log.h"
 
 #define INIT_BIAS 0
 #define INIT_WEIGHT ((double)rand() / (RAND_MAX)) - 0.5
@@ -317,7 +316,7 @@ void nn_train(
         } 
 
         // log metrics
-        log_info(
+        printf(
             "[EPOCH %d/%d] "
             "- Train Loss: %lf "
             "- Train Accuracy: %lf "

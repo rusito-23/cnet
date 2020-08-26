@@ -72,9 +72,9 @@ void test_random_inputs() {
     );
         
     /// add layers
-    nn_add(nn, input_size, 64, act_sigmoid);
-    nn_add(nn, 64, 32, act_sigmoid);
-    nn_add(nn, 32, output_size, act_sigmoid);
+    nn_add(nn, input_size, 64, sigmoid_act);
+    nn_add(nn, 64, 32, sigmoid_act);
+    nn_add(nn, 32, output_size, sigmoid_act);
 
     // create a file to save output
     FILE *history_file = fopen("test/test_random_inputs.dat", "w");
@@ -88,8 +88,8 @@ void test_random_inputs() {
         Y_val,
         train_size,
         val_size,
-        loss_mse,
-        metric_accuracy,
+        mse_loss,
+        metric_accuracy_round,
         lr,
         epochs,
         history_file

@@ -5,7 +5,7 @@ The main goal is to understand the artificial neural network architecture by bui
 
 ## DISCLAIMER
 
-This is not a serious project, nor it will be mantained. The objective was to understand the neural layers and that's all. [Here is a serious project](https://github.com/codeplea/genann) that can be used.
+This is not a serious project, nor it will be mantained. The objective was to understand the neural layers and that's all. [GENANN is a serious project](https://github.com/codeplea/genann) that can be used, seriously.
 
 ## MNIST
 
@@ -33,7 +33,7 @@ The [Makefile](Makefile) provides the following targets:
 - **mnist-train**: Trains a model on the mnist dataset (see [the mnist section](#mnist))
 - **mnist-predict**: Uses the saved model to predict over the mnist testset (see [the mnist section](#mnist))
 
-## LIB
+## LIB
 
 The project builds a static library that provides several functions, these will all start with the *cnet_* prefix and they can be found in the [cnet header](./cnet/include/cnet.h). The most important functions are:
 
@@ -44,3 +44,16 @@ The project builds a static library that provides several functions, these will 
 - **cnet_train**: trains the model over the given hyperparameters, this function also saves the history into a given file. This history can be displayed using the [metrics plot script](./plots/metrics.plt) using gnuplot.
 - **cnet_save**: save the model into a given file
 - **cnet_load**: load the model from a given file
+
+
+## RESOURCES
+
+To build this project I used the following resources as guide:
+
+- [3Blue1Brown](https://www.youtube.com/watch?v=aircAruvnKk&t=764s)
+- [DeepLizard](https://www.youtube.com/watch?v=gZmobeGL0Yg&list=PLZbbT5o_s2xq7LwI2y8_QtvuXZedL6tQU)
+- [NN in C by Santiago Becerra](https://towardsdatascience.com/simple-neural-network-implementation-in-c-663f51447547)
+- [GENANN](https://github.com/codeplea/genann/blob/master/genann.c)
+- [MINST-CNN-99.5 implementation](https://github.com/cdeotte/MNIST-CNN-99.5)
+- [MNIST Dataset Loader for C++](https://github.com/takafumihoriuchi/MNIST_for_C)
+- [ANN Implementation in C++](https://github.com/fllaryora/ANN)

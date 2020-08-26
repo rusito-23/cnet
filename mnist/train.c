@@ -10,8 +10,8 @@
 
 int main() {
     // hyperparameters
-    double lr = 1e-3;
-    double epochs = 512;
+    double lr = 1e-4;
+    double epochs = 60;
 
     // define dataset variables
     int train_size = TRAIN_SIZE;

@@ -11,9 +11,14 @@ This is not a serious project, it hasn't been fully tested, nor it will be manta
 
 The [mnist folder](./mnist) contains code to test the cnet library over the [mnist dataset](http://yann.lecun.com/exdb/mnist/).
 
-It contains two main scripts: *train* and *predict*. The *train* file contains code to train the model, the output is be saved into [the mnist out folder.](./mnist/out), including the saved model and the history file (containing loss and accuracy). The *predict* file contains code to test the saved model over the test-set and creating a confusion matrix, that can be visualized using a [gnuplot script](./plots/confusion_matrix.plt).
+It contains two main scripts: *train* and *test*. The *train* file contains code to train the model, the output is be saved into [the mnist out folder.](./mnist/out), including the saved model and the history file (containing loss and accuracy). 
 
-Currently, the model reaches **0.91** accuracy over the mnist test-set within 60 epochs (I haven't tried using more epochs yet).
+The *test* file contains code to test the saved model over the test-set and creates different reports. The reports are saved into the `mnist/out` folder, and contains
+- a confusion matrix saved into `mnist/out/conf.dat` that can be visualized using [this gnuplot script](./plots/confusion_matrix.plt).
+- a classification report, which includes precision, recall, f1-score and support for each of the digits.
+
+Currently, the model reaches **0.94** accuracy over the mnist test-set within 200 epochs (~5hs).
+The training is pretty slow as it uses SGD (batches with a single training sample) and does not use any optimization, such as momentum.
 
 ### MNIST HISTORY
 
@@ -24,6 +29,28 @@ Currently, the model reaches **0.91** accuracy over the mnist test-set within 60
 ### MNIST CONFUSION MATRIX
 
 ![mnist_conf](./demos/mnist_conf_matrix.png)
+
+
+### MNIST REPORT
+
+```
+CLASSIFICATION REPORT 
+
+         precision  recall     f1-score   support 
+Digit 0  50.000000  19.000000  27.536232  980 
+Digit 1  31.000000  23.000000  26.407407  1135 
+Digit 2  52.000000  89.000000  65.645390  1032 
+Digit 3  70.000000  73.000000  71.468531  1010 
+Digit 4  76.000000  55.000000  63.816794  982 
+Digit 5  63.000000  82.000000  71.255172  892 
+Digit 6  67.000000  38.000000  48.495238  958 
+Digit 7  54.000000  70.000000  60.967742  1028 
+Digit 8  80.000000  77.000000  78.471338  974 
+Digit 9  64.000000  81.000000  71.503448  1009 
+
+
+Final Accuracy: 0.940300 - Samples: 10000
+```
 
 
 ## BUILD
@@ -39,7 +66,7 @@ The [Makefile](Makefile) provides the following targets:
 - **cnet**: Builds the cnet static library
 - **integration-tests**: Builds a quick integration test
 - **mnist-train**: Trains a model on the mnist dataset (see [the mnist section](#mnist))
-- **mnist-predict**: Uses the saved model to predict over the mnist testset (see [the mnist section](#mnist))
+- **mnist-test**: Uses the saved model to predict over the mnist testset (see [the mnist section](#mnist))
 
 ## LIB
 

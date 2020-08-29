@@ -73,7 +73,7 @@ $(XDIR)/mnist.%: $(MNIST_SDIR)/%.c $(MNIST_IN) $(CNET_LIB)
 	$(CC) $(CFLAGS) -o $@ -I$(CNET_IDIR) -l$(CNET) -L$(LDIR) $<
 
 mnist-train: $(XDIR)/mnist.train
-mnist-predict: $(XDIR)/mnist.predict
+mnist-test: $(XDIR)/mnist.test
 
 
 # ----------------------- #

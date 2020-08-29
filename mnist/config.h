@@ -9,6 +9,7 @@
 
 #define HISTORY_FILE_PATH       "./mnist/out/history.dat"
 #define CONF_FILE_PATH          "./mnist/out/conf_matrix.dat"
+#define REPORT_FILE_PATH        "./mnist/out/report.txt"
 #define MODEL_FILE_PATH         "./mnist/out/model.cnet"
 
 

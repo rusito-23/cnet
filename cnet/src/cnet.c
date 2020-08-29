@@ -12,6 +12,7 @@
 #include "../include/activation.h"
 #include "../include/helpers.h"
 #include "../include/metrics.h"
+#include "../include/pbar.h"
 
 #define INIT_BIAS 0
 #define INIT_WEIGHT ((double)rand() / (RAND_MAX)) - 0.5
@@ -258,6 +259,7 @@ void nn_train(
 
     // init functions
     cnet_loss_func *loss = cnet_get_loss(loss_type);
+    cnet_metric_fun *metric = cnet_get_metric(metric_type);
 
     for(int epoch = 0; epoch < epochs; epoch++) {
         double train_loss = 0, val_loss = 0; 
@@ -271,6 +273,14 @@ void nn_train(
         for(int s = 0; s < train_size; s++) {
             int sample = idx_arr[s];
 
+            // update progress bar
+            cnet_pbar_update(
+                epoch,
+                epochs,
+                s,
+                train_size
+            );
+
             // pass the training sample through the net
             double const *train_pred = nn_predict(nn, X_train[sample]);
 
@@ -281,7 +291,7 @@ void nn_train(
                 nn->out_size
             );
 
-            train_metric += cnet_get_metric(metric_type)(
+            train_metric += metric(
                 train_pred, 
                 Y_train[sample],
                 nn->out_size
@@ -308,7 +318,7 @@ void nn_train(
                 nn->out_size
             );
 
-            val_metric += cnet_get_metric(metric_type)(
+            val_metric += metric(
                 val_pred, 
                 Y_val[s],
                 nn->out_size
@@ -317,13 +327,10 @@ void nn_train(
 
         // log metrics
         printf(
-            "[EPOCH %d/%d] "
-            "- Train Loss: %lf "
+            "\nTrain Loss: %lf "
             "- Train Accuracy: %lf "
             "- Val Loss: %lf "
-            "- Val Accuracy: %lf",
-            epoch,
-            epochs,
+            "- Val Accuracy: %lf \n",
             train_loss / train_size,
             train_metric / train_size,
             val_loss / val_size,

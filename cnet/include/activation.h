@@ -27,20 +27,22 @@ typedef void cnet_act_func(double *, int);
 
 
 /**
- * Activation Function Delta Computation.
+ * Activation Function Derivative.
  *
- * This funcions will be in charge of computing the layer's delta.
- * It will take as parameters the pointer to the array containing 
- * the delta computed using the derivative of the cost function.
+ * This funcions will be in charge of computing the activation derivative.
+ * The resulting value will be used, in conjunction with the cost
+ * derivative, to compute the layer's delta.
+ * IMPORTANT:
+ *  - it will take as parameter the layer's output, and not the
+ *    original values fed to the function.
+ *  - it takes a single number, as the responsibility to update
+ *    the layers delta using this value corresponds to the layer.
  *
- * @param double*: Output
- * @param double*: Delta
- * @param int: Size
+ * @param double: Activation Output
+ * @return double: Activation Derivative
  */
-typedef void cnet_act_func_delta(
-    double *,
-    double *,
-    int
+typedef double cnet_act_func_dx(
+    double
 );
 
 
@@ -57,15 +59,14 @@ cnet_act_func *cnet_get_act(enum cnet_act_type type);
 
 
 /**
- * Get activation delta computation function by type
+ * Get activation derivative function by type
  *
- * Returns a pointer to the activation function
- * delta computation implementation.
+ * Returns a pointer to the activation function derivative.
  *
  * @param enum cnet_act_type: Activation type
- * @return cnet_act_func_delta*
+ * @return cnet_act_func_dx*
  */
-cnet_act_func_delta *cnet_get_act_delta(enum cnet_act_type type);
+cnet_act_func_dx *cnet_get_act_dx(enum cnet_act_type type);
 
 
 #endif /* CNET_ACTIVATION_H */

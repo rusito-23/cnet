@@ -186,23 +186,18 @@ void nn_backward(
             }
         }
 
-        // update delta using the activation derivative
-        // over the sum of weights * input + bias
-        cnet_act_func_delta *act_delta = cnet_get_act_delta(layer->activation);
-        act_delta(
-            layer->output,
-            layer->delta,
-            layer->out_size
-        );
-
-        // gradient clipping: constraint the delta values
-        // cnet_clip(layer->delta, layer->out_size);
+        // get the activation derivative function, to update the layers delta
+        cnet_act_func_dx *act_dx = cnet_get_act_dx(layer->activation);
 
         // layer's input: the Z derivative over the weights
         double *input = !previous ? X : previous->output;
 
         // update trainable parameters
         for(int k = 0; k < layer->out_size; k++) {
+            // compute final delta using the activation derivative
+            layer->delta[k] *= act_dx(layer->output[k]);
+
+            // comput the neccessary update for the layer
             double update = learning_rate * layer->delta[k];
 
             // update bias
@@ -327,7 +322,8 @@ void nn_train(
 
         // log metrics
         printf(
-            "\nTrain Loss: %lf "
+            "\n"
+            "Train Loss: %lf "
             "- Train Accuracy: %lf "
             "- Val Loss: %lf "
             "- Val Accuracy: %lf \n",

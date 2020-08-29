@@ -40,12 +40,5 @@ typedef double cnet_metric_fun(
 cnet_metric_fun *cnet_get_metric(enum cnet_metric_type type);
 
 
-/**
- * Get metric name
- *
- * @param enum cnet_metric_type: Metric Type
- */
-const char* cnet_get_metric_name(enum cnet_metric_type type);
-
 
 #endif /* CNET_METRICS_H */

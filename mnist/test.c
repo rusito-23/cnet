@@ -75,8 +75,8 @@ int main() {
     );
 
     for(int i = 0; i < OUTPUT_SIZE; i++) {
-        double precision = (double)tp[i] / tp[i] + fp[i];
-        double recall = (double)tp[i] / tp[i] + fn[i];
+        double precision = (double)tp[i] / (tp[i] + fp[i]);
+        double recall = (double)tp[i] / (tp[i] + fn[i]);
         double f1 = 2*(recall * precision) / (recall + precision);
         fprintf(
             report_file,
